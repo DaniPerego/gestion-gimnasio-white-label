@@ -25,7 +25,11 @@ export default function MobileSidebar({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="md:hidden w-full shadow-md relative" style={{ backgroundColor: primaryColor }}>
+    <div 
+      className="md:hidden w-full shadow-md relative" 
+      style={{ backgroundColor: primaryColor }}
+      suppressHydrationWarning
+    >
       <div className="relative overflow-hidden">
         {fondoUrl && (
           <div 
