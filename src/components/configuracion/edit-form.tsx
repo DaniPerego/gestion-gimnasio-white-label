@@ -130,9 +130,9 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
 
         {/* Imagen de Fondo (File Upload) */}
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
+          <span className="mb-2 block text-sm font-medium text-gray-900">
             Imagen de Fondo (Opcional)
-          </label>
+          </span>
           
           {/* Hidden input to send the Base64 string to the server */}
           <input type="hidden" name="fondoUrl" value={previewUrl || ''} />

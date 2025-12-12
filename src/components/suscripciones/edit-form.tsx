@@ -18,7 +18,7 @@ export default function EditForm({ suscripcion }: { suscripcion: SuscripcionWith
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Socio (Read-only) */}
         <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">Socio</label>
+            <span className="mb-2 block text-sm font-medium text-gray-900">Socio</span>
             <input 
                 type="text" 
                 disabled 
@@ -29,7 +29,7 @@ export default function EditForm({ suscripcion }: { suscripcion: SuscripcionWith
 
         {/* Plan (Read-only) */}
         <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">Plan</label>
+            <span className="mb-2 block text-sm font-medium text-gray-900">Plan</span>
             <input 
                 type="text" 
                 disabled 
