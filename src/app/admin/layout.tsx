@@ -25,6 +25,7 @@ export default async function AdminLayout({
   const primaryColor = config?.colorPrimario || '#2563eb'; // blue-600
   const secondaryColor = config?.colorSecundario || '#1e40af'; // blue-800
   const nombreGimnasio = config?.nombreGimnasio || 'GMS White-Label';
+  const fondoUrl = config?.fondoUrl;
 
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
@@ -35,6 +36,7 @@ export default async function AdminLayout({
         role={userPermissions?.rol}
         nombreGimnasio={nombreGimnasio}
         primaryColor={primaryColor}
+        fondoUrl={fondoUrl}
       >
         <form
           action={async () => {
@@ -54,12 +56,18 @@ export default async function AdminLayout({
         style={{ backgroundColor: primaryColor }}
       >
         <Link
-          className="mb-2 flex h-40 items-end justify-start rounded-md p-4"
+          className="mb-2 flex h-40 items-end justify-start rounded-md p-4 relative overflow-hidden group"
           href="/admin"
           style={{ backgroundColor: secondaryColor }}
         >
-          <div className="w-40 text-white">
-            <h1 className="text-xl font-bold">{nombreGimnasio}</h1>
+          {fondoUrl && (
+             <div 
+               className="absolute inset-0 z-0 bg-cover bg-center opacity-40 transition-transform duration-500 group-hover:scale-110" 
+               style={{ backgroundImage: `url(${fondoUrl})` }} 
+             />
+          )}
+          <div className="w-40 text-white relative z-10">
+            <h1 className="text-xl font-bold drop-shadow-md">{nombreGimnasio}</h1>
             {config?.logoUrl && (
                 <span className="text-xs opacity-70">Logo Configurado</span>
             )}

@@ -47,6 +47,7 @@ model Configuracion {
   colorPrimario   String   @default("#000000") // Hex color
   colorSecundario String   @default("#ffffff") // Hex color
   logoUrl         String?
+  fondoUrl        String?  // URL de la imagen de fondo para el nombre del gimnasio
   updatedAt       DateTime @updatedAt
 }
 

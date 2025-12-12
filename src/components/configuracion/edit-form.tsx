@@ -97,6 +97,26 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
           </div>
         </div>
 
+        {/* URL Imagen de Fondo */}
+        <div className="mb-4">
+          <label htmlFor="fondoUrl" className="mb-2 block text-sm font-medium">
+            URL Imagen de Fondo (Opcional)
+          </label>
+          <div className="relative">
+            <input
+              id="fondoUrl"
+              name="fondoUrl"
+              type="url"
+              defaultValue={config?.fondoUrl || ''}
+              placeholder="https://ejemplo.com/imagen.jpg"
+              className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            Esta imagen se mostrará detrás del nombre del gimnasio en el menú lateral.
+          </p>
+        </div>
+
         <div aria-live="polite" aria-atomic="true">
             {state.message && (
                 <p className={`mt-2 text-sm ${state.message.includes('correctamente') ? 'text-green-600' : 'text-red-500'}`} key={state.message}>
