@@ -27,7 +27,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const config = await getConfiguracion();
-  const backgroundImage = (config as any)?.imagenFondoBody;
+  const backgroundImage = config?.fondoUrl;
 
   return (
     <html lang="es" suppressHydrationWarning>
