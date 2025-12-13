@@ -1,7 +1,10 @@
 import CheckInForm from '@/components/asistencias/check-in-form';
 import KioscoButton from '@/components/asistencias/kiosco-button';
+import { getConfiguracion } from '@/lib/data';
 
-export default function Page() {
+export default async function Page() {
+  const config = await getConfiguracion();
+  
   return (
     <main className="flex flex-col items-center justify-center min-h-[60vh]">
       <div className="w-full flex justify-end mb-4">
@@ -16,7 +19,7 @@ export default function Page() {
         </p>
       </div>
       
-      <CheckInForm />
+      <CheckInForm logoUrl={config?.logoUrl} nombreGimnasio={config?.nombreGimnasio} />
     </main>
   );
 }
