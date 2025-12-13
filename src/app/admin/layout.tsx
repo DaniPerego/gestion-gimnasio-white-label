@@ -101,12 +101,15 @@ export default async function AdminLayout({
       </div>
       
       {/* Contenido Principal */}
-      <div className="grow p-6 md:overflow-y-auto md:p-12 bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div 
+        className="grow p-6 md:overflow-y-auto md:p-12 transition-colors"
+        style={{ backgroundColor: secondaryColor }}
+      >
         <header className="mb-8 flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Panel de Administración</h2>
+            <h2 className="text-2xl font-bold text-white drop-shadow-sm">Panel de Administración</h2>
             <div className="flex items-center gap-4">
               <ThemeToggle />
-              <div className="text-sm text-gray-600 dark:text-gray-300">
+              <div className="text-sm text-white/90">
                   Hola, <span className="font-semibold">{session?.user?.name || 'Usuario'}</span> ({session?.user?.rol})
               </div>
             </div>

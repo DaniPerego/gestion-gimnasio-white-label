@@ -101,7 +101,7 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
         {/* Color Secundario */}
         <div className="mb-4">
           <label htmlFor="colorSecundario" className="mb-2 block text-sm font-medium text-gray-900">
-            Color Secundario (Logo/Acentos)
+            Color Secundario (Fondo Principal)
           </label>
           <div className="flex items-center gap-4">
             <input
@@ -180,7 +180,7 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
             </div>
           </div>
           <p className="mt-1 text-xs text-gray-500">
-            Esta imagen se mostrará como fondo de la aplicación y en el menú lateral.
+            Esta imagen se mostrará detrás del nombre del gimnasio en el menú lateral.
           </p>
         </div>
 
