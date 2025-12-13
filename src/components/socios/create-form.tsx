@@ -4,13 +4,45 @@ import Link from 'next/link';
 import { useActionState } from 'react';
 import { createSocio } from '@/lib/actions-socios';
 
+import { useRef } from 'react';
+
 export default function Form() {
-  const initialState = { message: '', errors: {} };
+  const initialState = { message: '', errors: {}, values: {} };
   const [state, dispatch, isPending] = useActionState(createSocio, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Mantener los valores ingresados si hay error
+  const getValue = (name: string) => {
+    if (state.values && state.values[name] !== undefined) return state.values[name];
+    return '';
+  };
 
   return (
-    <form action={dispatch}>
+    <form ref={formRef} action={async (formData) => {
+      // Guardar los valores actuales para repoblar el formulario si hay error
+      const values: Record<string, string> = {};
+      formData.forEach((value, key) => {
+        values[key] = value.toString();
+      });
+      const result = await dispatch(formData);
+      if (result && result.errors) {
+        state.values = values;
+      }
+    }}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
+        {/* Mostrar errores generales y de campos */}
+        {state.message && (
+          <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+            {state.message}
+            {state.errors && (
+              <ul className="mt-2 list-disc list-inside text-sm">
+                {Object.entries(state.errors).map(([field, errors]) =>
+                  errors.map((err: string) => <li key={field + err}>{field}: {err}</li>)
+                )}
+              </ul>
+            )}
+          </div>
+        )}
         {/* Nombre (obligatorio) */}
         <div className="mb-4">
           <label htmlFor="nombre" className="mb-2 block text-sm font-medium text-gray-900">
