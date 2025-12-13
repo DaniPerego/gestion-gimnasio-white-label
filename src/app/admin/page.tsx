@@ -3,22 +3,30 @@ import Link from 'next/link';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import ProfesorPanel from '@/components/asistencias/profesor-panel';
 
-export default async function AdminPage() {
   const session = await auth();
   let userPermissions = null;
-  
   if (session?.user?.email) {
     userPermissions = await prisma.usuario.findUnique({
-        where: { email: session.user.email },
+      where: { email: session.user.email },
     });
   }
-  
-  const isAdmin = userPermissions?.rol === 'ADMIN' || userPermissions?.rol === 'admin';
 
+  // Mostrar panel de asistencias si es profesor
+  if (userPermissions?.rol === 'PROFESOR_MUSCULACION') {
+    return <ProfesorPanel discipline="musculacion" />;
+  }
+  if (userPermissions?.rol === 'PROFESOR_CROSSFIT') {
+    return <ProfesorPanel discipline="crossfit" />;
+  }
+  if (userPermissions?.rol === 'PROFESOR_FUNCIONAL') {
+    return <ProfesorPanel discipline="funcional" />;
+  }
+
+  const isAdmin = userPermissions?.rol === 'ADMIN' || userPermissions?.rol === 'admin';
   if (!isAdmin) {
-      // Si no es admin, redirigir a la primera sección disponible (generalmente Socios)
-      redirect('/admin/socios');
+    redirect('/admin/socios');
   }
 
   const {

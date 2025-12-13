@@ -104,7 +104,9 @@ export default function Form() {
               </option>
               <option value="ADMIN">Administrador</option>
               <option value="RECEPCIONISTA">Recepcionista</option>
-              <option value="PROFESOR">Profesor</option>
+              <option value="PROFESOR_MUSCULACION">Profesor de Musculación</option>
+              <option value="PROFESOR_CROSSFIT">Profesor de Crossfit</option>
+              <option value="PROFESOR_FUNCIONAL">Profesor de Funcional</option>
             </select>
           </div>
           <div id="role-error" aria-live="polite" aria-atomic="true">
