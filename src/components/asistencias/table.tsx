@@ -3,11 +3,13 @@ import { fetchAsistencias } from '@/lib/data-asistencias';
 export default async function AsistenciasTable({
   query,
   currentPage,
+  discipline,
 }: {
   query: string;
   currentPage: number;
+  discipline?: string;
 }) {
-  const asistencias = await fetchAsistencias(query, currentPage);
+  const asistencias = await fetchAsistencias(query, currentPage, discipline);
 
   return (
     <div className="mt-6 flow-root">

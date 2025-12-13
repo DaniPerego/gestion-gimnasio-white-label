@@ -3,23 +3,52 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 const ITEMS_PER_PAGE = 10;
 
-export async function fetchAsistencias(query: string, currentPage: number) {
+export async function fetchAsistencias(query: string, currentPage: number, discipline?: string) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const whereClause: any = {
+    OR: [
+      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
+      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
+      { socio: { dni: { contains: query, mode: 'insensitive' } } },
+    ],
+  };
+
+  if (discipline === 'musculacion') {
+    whereClause.socio = {
+      suscripciones: {
+        some: {
+          activa: true,
+          plan: { allowsMusculacion: true },
+        },
+      },
+    };
+  } else if (discipline === 'crossfit') {
+    whereClause.socio = {
+      suscripciones: {
+        some: {
+          activa: true,
+          plan: { allowsCrossfit: true },
+        },
+      },
+    };
+  }
 
   try {
     const asistencias = await prisma.asistencia.findMany({
       skip: offset,
       take: ITEMS_PER_PAGE,
-      where: {
-        OR: [
-          { socio: { nombre: { contains: query } } },
-          { socio: { apellido: { contains: query } } },
-          { socio: { dni: { contains: query } } },
-        ],
-      },
+      where: whereClause,
       include: {
-        socio: true,
+        socio: {
+          include: {
+            suscripciones: {
+              where: { activa: true },
+              include: { plan: true }
+            }
+          }
+        },
       },
       orderBy: {
         fecha: 'desc',
@@ -32,17 +61,40 @@ export async function fetchAsistencias(query: string, currentPage: number) {
   }
 }
 
-export async function fetchAsistenciasPages(query: string) {
+export async function fetchAsistenciasPages(query: string, discipline?: string) {
   noStore();
+  
+  const whereClause: any = {
+    OR: [
+      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
+      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
+      { socio: { dni: { contains: query, mode: 'insensitive' } } },
+    ],
+  };
+
+  if (discipline === 'musculacion') {
+    whereClause.socio = {
+      suscripciones: {
+        some: {
+          activa: true,
+          plan: { allowsMusculacion: true },
+        },
+      },
+    };
+  } else if (discipline === 'crossfit') {
+    whereClause.socio = {
+      suscripciones: {
+        some: {
+          activa: true,
+          plan: { allowsCrossfit: true },
+        },
+      },
+    };
+  }
+
   try {
     const count = await prisma.asistencia.count({
-      where: {
-        OR: [
-          { socio: { nombre: { contains: query } } },
-          { socio: { apellido: { contains: query } } },
-          { socio: { dni: { contains: query } } },
-        ],
-      },
+      where: whereClause,
     });
     return Math.ceil(count / ITEMS_PER_PAGE);
   } catch (error) {

@@ -103,6 +103,37 @@ export default function Form() {
           </div>
         </div>
 
+        {/* Disciplinas */}
+        <div className="mb-4">
+          <span className="mb-2 block text-sm font-medium text-gray-900">
+            Disciplinas Permitidas
+          </span>
+          <div className="flex gap-4">
+            <div className="flex items-center">
+              <input
+                id="allowsMusculacion"
+                name="allowsMusculacion"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="allowsMusculacion" className="ml-2 block text-sm text-gray-900">
+                Musculación
+              </label>
+            </div>
+            <div className="flex items-center">
+              <input
+                id="allowsCrossfit"
+                name="allowsCrossfit"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="allowsCrossfit" className="ml-2 block text-sm text-gray-900">
+                Crossfit
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div aria-live="polite" aria-atomic="true">
             {state.message && (
                 <p className="mt-2 text-sm text-red-500" key={state.message}>
