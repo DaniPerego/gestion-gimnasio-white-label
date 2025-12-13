@@ -46,6 +46,7 @@ export default function Form() {
               placeholder="Ingrese el nombre"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="nombre-error"
+              autoComplete="given-name"
               defaultValue={state.values?.nombre}
               required
             />
@@ -73,6 +74,7 @@ export default function Form() {
               placeholder="Ingrese el apellido"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="apellido-error"
+              autoComplete="family-name"
               defaultValue={state.values?.apellido}
               required
             />
@@ -100,6 +102,7 @@ export default function Form() {
               placeholder="Ingrese el DNI"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="dni-error"
+              autoComplete="off"
               defaultValue={state.values?.dni}
               required
             />
@@ -124,6 +127,7 @@ export default function Form() {
               id="fechaNacimiento"
               name="fechaNacimiento"
               type="date"
+              autoComplete="bday"
               defaultValue={state.values?.fechaNacimiento}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -139,6 +143,7 @@ export default function Form() {
             <select
               id="genero"
               name="genero"
+              autoComplete="sex"
               defaultValue={state.values?.genero}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             >
@@ -162,6 +167,7 @@ export default function Form() {
               type="email"
               placeholder="Ingrese el email"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+              autoComplete="email"
               defaultValue={state.values?.email}
               aria-describedby="email-error"
             />
@@ -187,6 +193,7 @@ export default function Form() {
               name="telefono"
               type="text"
               placeholder="Ingrese el teléfono"
+              autoComplete="tel"
               defaultValue={state.values?.telefono}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -204,6 +211,7 @@ export default function Form() {
               name="direccion"
               type="text"
               placeholder="Ingrese la dirección"
+              autoComplete="street-address"
               defaultValue={state.values?.direccion}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
@@ -224,6 +232,7 @@ export default function Form() {
               name="contactoEmergencia"
               type="text"
               placeholder="Nombre de familiar o amigo"
+              autoComplete="off"
               defaultValue={state.values?.contactoEmergencia}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               required
@@ -242,6 +251,7 @@ export default function Form() {
               name="telefonoEmergencia"
               type="text"
               placeholder="Teléfono de emergencia"
+              autoComplete="off"
               defaultValue={state.values?.telefonoEmergencia}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
