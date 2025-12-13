@@ -13,6 +13,10 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
   const [previewUrl, setPreviewUrl] = useState<string | null>(config?.fondoUrl || null);
   const [fileError, setFileError] = useState<string | null>(null);
 
+  // Estado para manejar la previsualización de la imagen (Body)
+  const [previewBodyUrl, setPreviewBodyUrl] = useState<string | null>((config as any)?.imagenFondoBody || null);
+  const [fileBodyError, setFileBodyError] = useState<string | null>(null);
+
   // Manejar cambio de archivo
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,6 +40,31 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
     setPreviewUrl(null);
     // Limpiar el input file si es necesario (opcional, ya que usamos hidden input para el valor real)
     const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  // Manejar cambio de archivo (Body)
+  const handleBodyFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setFileBodyError(null);
+
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB límite para fondo completo
+        setFileBodyError('La imagen no debe superar 2MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewBodyUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveBodyImage = () => {
+    setPreviewBodyUrl(null);
+    const fileInput = document.getElementById('file-upload-body') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
   };
 
@@ -181,6 +210,62 @@ export default function ConfigForm({ config }: { config: Configuracion | null })
           </div>
           <p className="mt-1 text-xs text-gray-500">
             Esta imagen se mostrará detrás del nombre del gimnasio en el menú lateral.
+          </p>
+        </div>
+
+        {/* Imagen de Fondo Body (File Upload) */}
+        <div className="mb-4">
+          <span className="mb-2 block text-sm font-medium text-gray-900">
+            Imagen de Fondo General (Body)
+          </span>
+          
+          {/* Hidden input to send the Base64 string to the server */}
+          <input type="hidden" name="imagenFondoBody" value={previewBodyUrl || ''} />
+
+          <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 bg-white">
+            <div className="text-center">
+              {previewBodyUrl ? (
+                <div className="relative inline-block">
+                  <img 
+                    src={previewBodyUrl} 
+                    alt="Vista previa body" 
+                    className="mx-auto h-48 object-cover rounded-md shadow-md" 
+                  />
+                  <button
+                    type="button"
+                    onClick={handleRemoveBodyImage}
+                    className="absolute -top-2 -right-2 rounded-full bg-red-500 p-1 text-white shadow-sm hover:bg-red-600"
+                  >
+                    <XMarkIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" />
+              )}
+              
+              <div className="mt-4 flex text-sm leading-6 text-gray-600 justify-center">
+                <label
+                  htmlFor="file-upload-body"
+                  className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+                >
+                  <span>Subir un archivo</span>
+                  <input 
+                    id="file-upload-body" 
+                    name="file-upload-body" 
+                    type="file" 
+                    className="sr-only" 
+                    accept="image/*"
+                    onChange={handleBodyFileChange}
+                  />
+                </label>
+                <p className="pl-1">o arrastrar y soltar</p>
+              </div>
+              <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF hasta 2MB</p>
+              {fileBodyError && <p className="text-sm text-red-500 mt-2">{fileBodyError}</p>}
+            </div>
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            Esta imagen se mostrará como fondo de toda la aplicación.
           </p>
         </div>
 

@@ -9,6 +9,7 @@ const ConfigSchema = z.object({
   colorPrimario: z.string().regex(/^#([0-9A-F]{3}){1,2}$/i, 'Color inválido (Hex)'),
   colorSecundario: z.string().regex(/^#([0-9A-F]{3}){1,2}$/i, 'Color inválido (Hex)'),
   fondoUrl: z.string().optional(),
+  imagenFondoBody: z.string().optional(),
 });
 
 export async function updateConfiguracion(prevState: unknown, formData: FormData) {
@@ -17,6 +18,7 @@ export async function updateConfiguracion(prevState: unknown, formData: FormData
     colorPrimario: formData.get('colorPrimario'),
     colorSecundario: formData.get('colorSecundario'),
     fondoUrl: formData.get('fondoUrl'),
+    imagenFondoBody: formData.get('imagenFondoBody'),
   });
 
   if (!validatedFields.success) {
@@ -26,7 +28,7 @@ export async function updateConfiguracion(prevState: unknown, formData: FormData
     };
   }
 
-  const { nombreGimnasio, colorPrimario, colorSecundario, fondoUrl } = validatedFields.data;
+  const { nombreGimnasio, colorPrimario, colorSecundario, fondoUrl, imagenFondoBody } = validatedFields.data;
 
   try {
     // Buscamos la primera configuración existente para actualizarla
@@ -40,6 +42,7 @@ export async function updateConfiguracion(prevState: unknown, formData: FormData
           colorPrimario,
           colorSecundario,
           fondoUrl,
+          imagenFondoBody,
         },
       });
     } else {
@@ -50,6 +53,7 @@ export async function updateConfiguracion(prevState: unknown, formData: FormData
           colorPrimario,
           colorSecundario,
           fondoUrl,
+          imagenFondoBody,
         },
       });
     }
