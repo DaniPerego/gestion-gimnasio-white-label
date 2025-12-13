@@ -16,25 +16,9 @@ export default function Form() {
   const initialState: StateType = { message: '', errors: {}, values: {} };
   const [state, dispatch, isPending] = useActionState<StateType, FormData>(createSocio, initialState);
   const formRef = useRef<HTMLFormElement>(null);
-
-  // Mantener los valores ingresados si hay error
-  const getValue = (name: string) => {
-    if (state.values && state.values[name] !== undefined) return state.values[name];
-    return '';
-  };
-
+  
   return (
-    <form ref={formRef} action={async (formData) => {
-      const values: Record<string, string> = {};
-      formData.forEach((value, key) => {
-        values[key] = value.toString();
-      });
-      const result = await dispatch(formData);
-      if (result && result.errors) {
-        // Actualizar el estado con los valores ingresados
-        Object.assign(state, { values });
-      }
-    }}>
+    <form ref={formRef} action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Mostrar errores generales y de campos */}
         {state.message && (
@@ -62,6 +46,7 @@ export default function Form() {
               placeholder="Ingrese el nombre"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="nombre-error"
+              defaultValue={state.values?.nombre}
               required
             />
           </div>
@@ -88,6 +73,7 @@ export default function Form() {
               placeholder="Ingrese el apellido"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="apellido-error"
+              defaultValue={state.values?.apellido}
               required
             />
           </div>
@@ -114,6 +100,7 @@ export default function Form() {
               placeholder="Ingrese el DNI"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               aria-describedby="dni-error"
+              defaultValue={state.values?.dni}
               required
             />
           </div>
@@ -137,6 +124,7 @@ export default function Form() {
               id="fechaNacimiento"
               name="fechaNacimiento"
               type="date"
+              defaultValue={state.values?.fechaNacimiento}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
           </div>
@@ -151,6 +139,7 @@ export default function Form() {
             <select
               id="genero"
               name="genero"
+              defaultValue={state.values?.genero}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             >
               <option value="">Seleccione...</option>
@@ -173,6 +162,7 @@ export default function Form() {
               type="email"
               placeholder="Ingrese el email"
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue={state.values?.email}
               aria-describedby="email-error"
             />
           </div>
@@ -197,6 +187,7 @@ export default function Form() {
               name="telefono"
               type="text"
               placeholder="Ingrese el teléfono"
+              defaultValue={state.values?.telefono}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
           </div>
@@ -213,6 +204,7 @@ export default function Form() {
               name="direccion"
               type="text"
               placeholder="Ingrese la dirección"
+              defaultValue={state.values?.direccion}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
           </div>
@@ -232,6 +224,7 @@ export default function Form() {
               name="contactoEmergencia"
               type="text"
               placeholder="Nombre de familiar o amigo"
+              defaultValue={state.values?.contactoEmergencia}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               required
             />
@@ -249,6 +242,7 @@ export default function Form() {
               name="telefonoEmergencia"
               type="text"
               placeholder="Teléfono de emergencia"
+              defaultValue={state.values?.telefonoEmergencia}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
           </div>
@@ -267,6 +261,7 @@ export default function Form() {
               id="condicionesMedicas"
               name="condicionesMedicas"
               placeholder="Describa condiciones médicas relevantes..."
+              defaultValue={state.values?.condicionesMedicas}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
               rows={3}
               required
@@ -285,6 +280,7 @@ export default function Form() {
               name="objetivo"
               type="text"
               placeholder="Ej: Bajar de peso, Ganar masa muscular..."
+              defaultValue={state.values?.objetivo}
               className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
             />
           </div>
