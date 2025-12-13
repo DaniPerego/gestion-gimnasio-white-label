@@ -25,7 +25,6 @@ const CreateSocio = FormSchema;
 const UpdateSocio = FormSchema;
 
 export async function createSocio(prevState: any, formData: FormData) {
-  const values = Object.fromEntries(formData.entries());
   const validatedFields = CreateSocio.safeParse({
     nombre: formData.get('nombre'),
     apellido: formData.get('apellido'),
@@ -46,7 +45,7 @@ export async function createSocio(prevState: any, formData: FormData) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Faltan campos obligatorios. Error al crear socio.',
-      values,
+      values: Object.fromEntries(formData.entries()),
     };
   }
 
@@ -77,7 +76,7 @@ export async function createSocio(prevState: any, formData: FormData) {
     return {
       message: 'Error de base de datos: No se pudo crear el socio (posible DNI duplicado).',
       errors: {},
-      values,
+      values: Object.fromEntries(formData.entries()),
     };
   }
 
@@ -135,7 +134,7 @@ export async function updateSocio(id: string, prevState: unknown, formData: Form
     } catch {
       return { message: 'Error de base de datos: No se pudo actualizar el socio.' };
     }
-  
+
     revalidatePath('/admin/socios');
     redirect('/admin/socios');
   }
