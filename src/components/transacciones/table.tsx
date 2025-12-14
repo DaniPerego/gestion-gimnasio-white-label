@@ -32,7 +32,7 @@ export default async function TransaccionesTable({
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    <p className="text-sm text-gray-500">{transaccion.fecha.toLocaleDateString()}</p>
+                    <p className="text-sm text-gray-500">{transaccion.fecha.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' })}</p>
                   </div>
                   <div className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">
                     {transaccion.metodoPago}
@@ -79,7 +79,7 @@ export default async function TransaccionesTable({
                     ${Number(transaccion.monto).toFixed(2)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {transaccion.fecha.toLocaleDateString()} {transaccion.fecha.toLocaleTimeString()}
+                    {transaccion.fecha.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' })} {transaccion.fecha.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {transaccion.metodoPago}
