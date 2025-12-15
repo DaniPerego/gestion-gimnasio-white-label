@@ -1,4 +1,4 @@
-import { fetchAsistenciasHoy, fetchModalidades } from '@/lib/data'; // Asumiendo que tienes data.ts
+import { fetchAsistenciasHoy, fetchModalidades } from '@/lib/data-modalidades';
 import FiltroModalidad from './filtro-modalidad';
 
 export default async function AsistenciaTable({
