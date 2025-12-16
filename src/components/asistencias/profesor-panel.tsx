@@ -8,7 +8,12 @@ export default async function ProfesorPanel({ discipline }: { discipline: string
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
-  const asistencias = await fetchAsistencias('', 1, discipline);
+  type AsistenciaWithSocio = {
+    id: string;
+    fecha: Date | string;
+    socio: { id: string; nombre: string; apellido: string };
+  };
+  const asistencias = (await fetchAsistencias('', 1, discipline)) as AsistenciaWithSocio[];
   // Filtrar solo las asistencias de hoy
   const presentesHoy = asistencias.filter(a => {
     const fecha = new Date(a.fecha);
