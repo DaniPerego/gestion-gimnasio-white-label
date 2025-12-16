@@ -6,7 +6,13 @@ export default async function AsistenciaTable({
 }: {
   modalidad: string;
 }) {
-  const asistencias = await fetchAsistenciasHoy(modalidad);
+  type AsistenciaWithSocio = {
+    id: string;
+    fecha: Date | string;
+    socio: { id: string; nombre: string; apellido: string; dni: string };
+    modalidad: { id: string; nombre: string };
+  };
+  const asistencias = (await fetchAsistenciasHoy(modalidad)) as AsistenciaWithSocio[];
   const modalidades = await fetchModalidades();
 
   return (
