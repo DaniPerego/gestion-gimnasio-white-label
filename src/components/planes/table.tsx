@@ -71,7 +71,6 @@ export default async function PlanesTable() {
             <tbody className="bg-white">
               {planes?.map((plan) => (
                 <tr
-                    {plan.duracionMeses} meses
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
@@ -86,7 +85,7 @@ export default async function PlanesTable() {
                     $ {Number(plan.precio).toFixed(2)}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {plan.duracionValor} {plan.duracionTipo}
+                    {plan.duracionMeses} meses
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <span className={`px-2 py-1 text-xs rounded-full ${plan.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
