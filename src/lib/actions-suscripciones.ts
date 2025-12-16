@@ -45,13 +45,28 @@ export async function createSuscripcion(prevState: unknown, formData: FormData) 
     fechaInicioDate.setHours(12, 0, 0, 0);
     
     // Lógica de Fecha Exacta:
-    // La suscripción dura exactamente X meses desde la fecha de inicio.
+    // La suscripción dura exactamente X días, meses o años desde la fecha de inicio.
     // Ejemplo: Inicio 20 Dic, Duración 1 mes -> Fin 20 Ene.
     const fechaFinDate = new Date(fechaInicioDate);
-    fechaFinDate.setMonth(fechaFinDate.getMonth() + plan.duracionMeses);
+
+    switch (plan.duracionTipo) {
+      case 'días':
+      case 'dias':
+        fechaFinDate.setDate(fechaFinDate.getDate() + plan.duracionValor);
+        break;
+      case 'meses':
+        fechaFinDate.setMonth(fechaFinDate.getMonth() + plan.duracionValor);
+        break;
+      case 'años':
+        fechaFinDate.setFullYear(fechaFinDate.getFullYear() + plan.duracionValor);
+        break;
+      default:
+        console.error(`Tipo de duración desconocido en el plan: ${plan.duracionTipo}`);
+        break;
+    }
 
     // Ajuste por si el día destino no existe (ej: 31 Ene + 1 mes -> 2 Mar, queremos 28 Feb)
-    if (fechaFinDate.getDate() !== fechaInicioDate.getDate()) {
+    if (plan.duracionTipo === 'meses' && fechaFinDate.getDate() !== fechaInicioDate.getDate()) {
         fechaFinDate.setDate(0); // Volver al último día del mes anterior
     }
     
