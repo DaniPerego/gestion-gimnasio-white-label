@@ -66,7 +66,7 @@ export default function Form({ socios, planes }: { socios: Socio[], planes: Plan
               </option>
               {planes.map((plan) => (
                 <option key={plan.id} value={plan.id}>
-                  {plan.nombre} - ${Number(plan.precio)} ({plan.duracionValor} {plan.duracionTipo})
+                  {plan.nombre} - ${Number(plan.precio)} ({plan.duracionMeses} meses)
                 </option>
               ))}
             </select>
