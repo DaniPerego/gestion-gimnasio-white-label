@@ -42,7 +42,6 @@ export async function fetchAsistencias(query: string, currentPage: number, disci
       where: whereClause,
       include: {
         socio: true,
-        modalidad: true,
       },
       orderBy: {
         fecha: 'desc',
@@ -53,7 +52,6 @@ export async function fetchAsistencias(query: string, currentPage: number, disci
       id: string;
       fecha: Date | string;
       socio: { id: string; nombre: string; apellido: string; dni: string };
-      modalidad: any;
     }>;
   } catch (error) {
     console.error('Database Error:', error);
