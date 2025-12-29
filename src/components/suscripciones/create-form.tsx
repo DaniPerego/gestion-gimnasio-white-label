@@ -76,26 +76,6 @@ function SocioAutocomplete({ socios }: { socios: Socio[] }) {
                 ))}
             </div>
           </div>
-                <input type="hidden" name="socioId" value={selectedId} />
-                {input && (
-                  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-md mt-1 max-h-40 overflow-auto">
-                    {filtered.length === 0 && (
-                      <li className="p-2 text-gray-500">No se encontraron socios</li>
-                    )}
-                    {filtered.map(socio => (
-                      <li
-                        key={socio.id}
-                        className={`p-2 cursor-pointer hover:bg-gray-100 ${selectedId === socio.id ? 'bg-gray-200' : ''}`}
-                        onClick={() => {
-                          setInput(`${socio.nombre} ${socio.apellido} - ${socio.dni}`);
-                          setSelectedId(socio.id);
-                        }}
-                      >
-                        {socio.nombre} {socio.apellido} - {socio.dni}
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </div>
             );
           }
