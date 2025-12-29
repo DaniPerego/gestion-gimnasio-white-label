@@ -11,10 +11,10 @@ export async function fetchFilteredSocios(query: string, currentPage: number) {
     const socios = await prisma.socio.findMany({
       where: {
         OR: [
-          { nombre: { contains: query } }, // SQLite no soporta mode: 'insensitive' nativo fácilmente en Prisma < 5 sin configuración extra, pero probaremos así
-          { apellido: { contains: query } },
-          { dni: { contains: query } },
-          { email: { contains: query } },
+          { nombre: { contains: query, mode: 'insensitive' } },
+          { apellido: { contains: query, mode: 'insensitive' } },
+          { dni: { contains: query, mode: 'insensitive' } },
+          { email: { contains: query, mode: 'insensitive' } },
         ],
       },
       orderBy: { createdAt: 'desc' },

@@ -23,7 +23,7 @@ export async function createPlan(prevState: unknown, formData: FormData) {
     nombre: formData.get('nombre'),
     descripcion: formData.get('descripcion'),
     precio: formData.get('precio'),
-      duracionMeses: formData.get('duracionMeses'),
+    duracionMeses: formData.get('duracionMeses'),
     allowsMusculacion: formData.get('allowsMusculacion') === 'on',
     allowsCrossfit: formData.get('allowsCrossfit') === 'on',
   });
@@ -63,7 +63,7 @@ export async function updatePlan(id: string, prevState: unknown, formData: FormD
     nombre: formData.get('nombre'),
     descripcion: formData.get('descripcion'),
     precio: formData.get('precio'),
-      duracionMeses: formData.get('duracionMeses'),
+    duracionMeses: formData.get('duracionMeses'),
     allowsMusculacion: formData.get('allowsMusculacion') === 'on',
     allowsCrossfit: formData.get('allowsCrossfit') === 'on',
   });

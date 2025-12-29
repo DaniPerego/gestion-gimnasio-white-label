@@ -11,6 +11,7 @@ export default async function Page() {
       </div>
       <div className="max-w-2xl">
         <ConfigForm config={config} />
+        {/* Botón de exportar eliminado */}
       </div>
     </main>
   );

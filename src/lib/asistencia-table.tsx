@@ -1,25 +1,24 @@
-import { fetchAsistenciasHoy, fetchModalidades } from '@/lib/data-modalidades';
-import FiltroModalidad from './filtro-modalidad';
+
+import { fetchAsistenciasHoy } from '@/lib/data-modalidades';
+
+type AsistenciaWithSocio = {
+  id: string;
+  fecha: Date | string;
+  socio?: { id: string; nombre: string; apellido: string; dni: string };
+  // modalidad?: { id: string; nombre: string };
+};
 
 export default async function AsistenciaTable({
   modalidad,
 }: {
   modalidad: string;
 }) {
-  type AsistenciaWithSocio = {
-    id: string;
-    fecha: Date | string;
-    socio: { id: string; nombre: string; apellido: string; dni: string };
-    modalidad: { id: string; nombre: string };
-  };
   const asistencias = (await fetchAsistenciasHoy(modalidad)) as AsistenciaWithSocio[];
-  const modalidades = await fetchModalidades();
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex w-full items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Asistencia de Hoy</h1>
-        <FiltroModalidad modalidades={modalidades} />
       </div>
       <div className="mt-6 flow-root">
         <div className="inline-block min-w-full align-middle">
@@ -33,15 +32,16 @@ export default async function AsistenciaTable({
                   <div className="flex items-center justify-between border-b pb-4">
                     <div>
                       <p className="text-lg font-medium">
-                        {asistencia.socio.nombre} {asistencia.socio.apellido}
+                        {asistencia.socio ? `${asistencia.socio.nombre} ${asistencia.socio.apellido}` : 'Sin socio'}
                       </p>
-                      <p className="text-sm text-gray-500">{asistencia.socio.dni}</p>
+                      <p className="text-sm text-gray-500">{asistencia.socio?.dni ?? '-'}</p>
                     </div>
                   </div>
                   <div className="flex w-full items-center justify-between pt-4">
                     <div>
                       <p className="text-md font-medium">
-                        {asistencia.modalidad.nombre}
+                        {/* Modalidad eliminada del modelo, mostrar vacío o placeholder */}
+                        -
                       </p>
                       <p className="text-sm">
                         {new Date(asistencia.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs
@@ -75,13 +75,13 @@ export default async function AsistenciaTable({
                     className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                   >
                     <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                      <p>{asistencia.socio.nombre} {asistencia.socio.apellido}</p>
+                      <p>{asistencia.socio ? `${asistencia.socio.nombre} ${asistencia.socio.apellido}` : 'Sin socio'}</p>
                     </td>
                     <td className="whitespace-nowrap px-3 py-3">
-                      {asistencia.socio.dni}
+                      {asistencia.socio?.dni ?? '-'}
                     </td>
                     <td className="whitespace-nowrap px-3 py-3">
-                      {asistencia.modalidad.nombre}
+                      -
                     </td>
                     <td className="whitespace-nowrap px-3 py-3">
                       {new Date(asistencia.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs

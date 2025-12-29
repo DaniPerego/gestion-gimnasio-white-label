@@ -22,7 +22,6 @@ export async function fetchAsistenciasHoy(modalidadId?: string) {
       where: whereClause,
       include: {
         socio: true,
-        modalidad: true,
       },
       orderBy: {
         fecha: 'asc',
@@ -35,15 +34,3 @@ export async function fetchAsistenciasHoy(modalidadId?: string) {
   }
 }
 
-export async function fetchModalidades() {
-  noStore();
-  try {
-    const modalidades = await prisma.modalidad.findMany({
-      orderBy: { nombre: 'asc' },
-    });
-    return modalidades;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch modalidades.');
-  }
-}
