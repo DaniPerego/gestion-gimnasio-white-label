@@ -1,10 +1,10 @@
 import { fetchSuscripciones } from '@/lib/data-suscripciones';
 import { cancelSuscripcion } from '@/lib/actions-suscripciones';
+import { formatFechaBuenosAires } from '@/lib/date-utils';
 
 export default async function SuscripcionesTable({
   query,
   currentPage,
-  import { formatFechaBuenosAires } from '@/lib/date-utils';
 }: {
   query: string;
   currentPage: number;
