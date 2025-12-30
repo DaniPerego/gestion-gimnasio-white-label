@@ -2,7 +2,7 @@
 'use client';
 import Link from 'next/link';
 import { useActionState } from 'react';
-import SearchInput from '@/components/ui/search-input';
+// import SearchInput from '@/components/ui/search-input';
 import { createSuscripcion } from '@/lib/actions-suscripciones';
 import { Socio, Plan } from '@prisma/client';
 
@@ -23,7 +23,22 @@ type PlanSerializable = Omit<Plan, 'precio'> & { precio: number };
               Seleccionar Socio
             </label>
             <div className="relative">
-              <SearchInput placeholder="Buscar socio por nombre, apellido o DNI" />
+              <select
+                id="socioId"
+                name="socioId"
+                className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+                defaultValue=""
+                aria-describedby="socio-error"
+              >
+                <option value="" disabled>
+                  Seleccione un socio
+                </option>
+                {socios.map((socio) => (
+                  <option key={socio.id} value={socio.id}>
+                    {socio.nombre} {socio.apellido} - {socio.dni}
+                  </option>
+                ))}
+              </select>
             </div>
             <div id="socio-error" aria-live="polite" aria-atomic="true">
               {state.errors?.socioId &&
