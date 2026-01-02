@@ -1,23 +1,4 @@
-# Implementación de Control de Acceso (Cerradura Magnética)
-
-Este documento describe cómo integrar el sistema de gestión (GMS) con una cerradura magnética física de 12V para automatizar el ingreso de los socios.
-
-## 1. Concepto General
-
-Las aplicaciones web no pueden controlar electricidad directamente. Para lograrlo, necesitamos un dispositivo intermediario (Microcontrolador) conectado a la red WiFi del gimnasio.
-
-**El flujo es el siguiente:**
-1. El Socio ingresa su DNI en la "Ventana Socio" (PC/Tablet en el mostrador).
-2. El Sistema verifica en la Base de Datos (Vercel) si el socio está activo y al día.
-3. **Si el acceso es VÁLIDO:**
-   - El navegador envía una señal por la red local al Microcontrolador.
-   - El Microcontrolador activa un Relé.
-   - El Relé corta la energía (12V) de la cerradura por unos segundos.
-   - La puerta se abre.
-4. **Si el acceso es DENEGADO:**
-   - El sistema muestra un mensaje en pantalla: "Acceso Denegado. Diríjase a Administración".
-   - La cerradura permanece magnetizada (cerrada).
-
+podes fijarte que quedo pendien
 ## 2. Hardware Necesario
 
 Para construir este puente entre el software y la puerta, necesitas:
