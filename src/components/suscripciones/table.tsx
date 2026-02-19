@@ -5,11 +5,13 @@ import { formatFechaBuenosAires } from '@/lib/date-utils';
 export default async function SuscripcionesTable({
   query,
   currentPage,
+  filtro,
 }: {
   query: string;
   currentPage: number;
+  filtro?: string;
 }) {
-  const suscripciones = await fetchSuscripciones(query, currentPage);
+  const suscripciones = await fetchSuscripciones(query, currentPage, filtro);
 
   return (
     <div className="mt-6 flow-root">
