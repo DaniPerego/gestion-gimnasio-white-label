@@ -72,7 +72,6 @@ export async function fetchActiveSuscripcionesForSelect() {
   noStore();
   try {
     const suscripciones = await prisma.suscripcion.findMany({
-      where: { activa: true },
       include: {
         socio: {
           include: {
@@ -82,7 +81,7 @@ export async function fetchActiveSuscripcionesForSelect() {
         plan: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     });
     // Convertir Decimal a number para evitar error de serialización
@@ -103,7 +102,7 @@ export async function fetchActiveSuscripcionesForSelect() {
     }));
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch active subscriptions.');
+    throw new Error('Failed to fetch subscriptions for payments.');
   }
 }
 
