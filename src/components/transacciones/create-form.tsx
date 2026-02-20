@@ -244,7 +244,7 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
                   {tipoPago === 'CUOTA_SUSCRIPCION' && (
                     <button
                       type="button"
-                      onClick={() => setTipoPago('OTRO')}
+                      onClick={() => { setTipoPago('OTRO'); setMontoCuota(0); }}
                       className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
                     >
                       Marcar como otro pago
@@ -267,7 +267,12 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
             <select
               id="tipoPago"
               value={tipoPago}
-              onChange={(e) => setTipoPago(e.target.value as 'CUOTA_SUSCRIPCION' | 'OTRO')}
+              onChange={(e) => {
+                const val = e.target.value as 'CUOTA_SUSCRIPCION' | 'OTRO';
+                setTipoPago(val);
+                if (val === 'OTRO') setMontoCuota(0);
+                if (val === 'CUOTA_SUSCRIPCION' && selectedSuscripcion) setMontoCuota(selectedSuscripcion.plan.precio);
+              }}
               className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-2 px-3 text-sm"
             >
               <option value="OTRO">Otro pago (no renueva suscripción)</option>
