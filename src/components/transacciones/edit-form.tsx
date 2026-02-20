@@ -7,7 +7,7 @@ import SuscripcionSearchSelect from './suscripcion-search-select';
 
 type Transaccion = {
   id: string;
-  tipoPago: 'CUOTA_SUSCRIPCION' | 'OTRO';
+  tipoPago: string;
   monto: number;
   fecha: Date;
   metodoPago: string;
