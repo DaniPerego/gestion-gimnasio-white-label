@@ -41,6 +41,9 @@ export default async function TransaccionesTable({
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {transaccion.fecha.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' })}
                     </p>
+                    <span className={`px-2 py-1 text-xs rounded-full uppercase font-medium ${transaccion.tipoPago === 'CUOTA_SUSCRIPCION' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300'}`}>
+                      {transaccion.tipoPago === 'CUOTA_SUSCRIPCION' ? 'Cuota' : 'Otro'}
+                    </span>
                     <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 uppercase font-medium">
                       {transaccion.metodoPago}
                     </span>
@@ -63,6 +66,9 @@ export default async function TransaccionesTable({
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Fecha
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Tipo
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Método
@@ -93,6 +99,11 @@ export default async function TransaccionesTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {transaccion.fecha.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit', day: '2-digit' })} {transaccion.fecha.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    <span className={`px-2 py-1 text-xs rounded-full uppercase font-medium ${transaccion.tipoPago === 'CUOTA_SUSCRIPCION' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'}`}>
+                      {transaccion.tipoPago === 'CUOTA_SUSCRIPCION' ? 'Cuota' : 'Otro'}
+                    </span>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {transaccion.metodoPago}

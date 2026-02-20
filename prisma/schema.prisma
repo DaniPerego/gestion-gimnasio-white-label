@@ -94,6 +94,7 @@ model Suscripcion {
 model Transaccion {
   id                         String                      @id @default(cuid())
   suscripcionId              String
+  tipoPago                   String                      @default("OTRO")
   monto                      Decimal
   fecha                      DateTime                    @default(now())
   metodoPago                 String

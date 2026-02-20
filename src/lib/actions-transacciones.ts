@@ -25,6 +25,7 @@ function buildRenewalDates(baseDate: Date, duracionMeses: number) {
 const FormSchema = z.object({
   id: z.string(),
   suscripcionId: z.string().min(1, 'Debe seleccionar una suscripción'),
+  tipoPago: z.enum(['CUOTA_SUSCRIPCION', 'OTRO']),
   monto: z.coerce.number().min(0, 'El monto no puede ser negativo'),
   metodoPago: z.string().min(1, 'Seleccione un método de pago'),
   fecha: z.string().optional(),
@@ -46,9 +47,20 @@ const FormSchema = z.object({
 
 const CreateTransaccion = FormSchema.omit({ id: true });
 
+const UpdateTransaccionSchema = z.object({
+  id: z.string(),
+  suscripcionId: z.string().min(1, 'Debe seleccionar una suscripción'),
+  tipoPago: z.enum(['CUOTA_SUSCRIPCION', 'OTRO']),
+  monto: z.coerce.number().min(0, 'El monto no puede ser negativo'),
+  metodoPago: z.string().min(1, 'Seleccione un método de pago'),
+  fecha: z.string().optional(),
+  notas: z.string().min(1, 'La descripción es requerida'),
+});
+
 export async function createTransaccion(prevState: unknown, formData: FormData) {
   const validatedFields = CreateTransaccion.safeParse({
     suscripcionId: formData.get('suscripcionId'),
+    tipoPago: formData.get('tipoPago') ?? 'OTRO',
     monto: formData.get('monto'),
     metodoPago: formData.get('metodoPago'),
     fecha: formData.get('fecha'),
@@ -65,7 +77,7 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
     };
   }
 
-  const { suscripcionId, monto, metodoPago, fecha, notas, incluirCuentaCorriente, montoCuentaCorriente, cuentaCorrienteId } = validatedFields.data;
+  const { suscripcionId, tipoPago, monto, metodoPago, fecha, notas, incluirCuentaCorriente, montoCuentaCorriente, cuentaCorrienteId } = validatedFields.data;
 
   try {
     const suscripcion = await prisma.suscripcion.findUnique({
@@ -97,6 +109,7 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
     const newTransaccion = await prisma.transaccion.create({
       data: {
         suscripcionId,
+        tipoPago,
         monto: montoTotal,
         metodoPago,
         ...(fecha && { fecha: new Date(fecha) }),
@@ -112,7 +125,7 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
       },
     });
 
-    if (monto > 0) {
+    if (tipoPago === 'CUOTA_SUSCRIPCION' && monto > 0) {
       const fechaPagoBase = fecha ? new Date(fecha) : new Date();
       const baseRenovacion = suscripcion.fechaFin > fechaPagoBase ? suscripcion.fechaFin : fechaPagoBase;
       const { fechaInicio, fechaFin } = buildRenewalDates(baseRenovacion, suscripcion.plan.duracionMeses);
@@ -208,9 +221,10 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
 }
 
 export async function updateTransaccion(prevState: unknown, formData: FormData) {
-  const validatedFields = FormSchema.safeParse({
+  const validatedFields = UpdateTransaccionSchema.safeParse({
     id: formData.get('id'),
     suscripcionId: formData.get('suscripcionId'),
+    tipoPago: formData.get('tipoPago') ?? 'OTRO',
     monto: formData.get('monto'),
     metodoPago: formData.get('metodoPago'),
     fecha: formData.get('fecha'),
@@ -224,13 +238,14 @@ export async function updateTransaccion(prevState: unknown, formData: FormData) 
     };
   }
 
-  const { id, suscripcionId, monto, metodoPago, fecha, notas } = validatedFields.data;
+  const { id, suscripcionId, tipoPago, monto, metodoPago, fecha, notas } = validatedFields.data;
 
   try {
     await prisma.transaccion.update({
       where: { id },
       data: {
         suscripcionId,
+        tipoPago,
         monto,
         metodoPago,
         ...(fecha && { fecha: new Date(fecha) }),

@@ -1,0 +1,2 @@
+ALTER TABLE "Transaccion"
+ADD COLUMN "tipoPago" TEXT NOT NULL DEFAULT 'OTRO';

@@ -7,6 +7,7 @@ import SuscripcionSearchSelect from './suscripcion-search-select';
 
 type Transaccion = {
   id: string;
+  tipoPago: 'CUOTA_SUSCRIPCION' | 'OTRO';
   monto: number;
   fecha: Date;
   metodoPago: string;
@@ -56,6 +57,32 @@ export default function EditForm({
           <div id="suscripcion-error" aria-live="polite" aria-atomic="true">
             {state.errors?.suscripcionId &&
               state.errors.suscripcionId.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        {/* Monto */}
+        <div className="mb-4">
+          <label htmlFor="tipoPago" className="mb-2 block text-sm font-medium text-gray-900">
+            Tipo de Pago
+          </label>
+          <div className="relative">
+            <select
+              id="tipoPago"
+              name="tipoPago"
+              className="peer block w-full rounded-md border border-gray-200 bg-white text-gray-900 py-2 pl-3 text-sm outline-2 placeholder:text-gray-500"
+              defaultValue={transaccion.tipoPago || 'OTRO'}
+            >
+              <option value="OTRO">Otro pago (no renueva suscripción)</option>
+              <option value="CUOTA_SUSCRIPCION">Cuota de suscripción (renueva automáticamente)</option>
+            </select>
+          </div>
+          <div id="tipoPago-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.tipoPago &&
+              state.errors.tipoPago.map((error: string) => (
                 <p className="mt-2 text-sm text-red-500" key={error}>
                   {error}
                 </p>

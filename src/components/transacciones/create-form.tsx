@@ -29,6 +29,7 @@ type SuscripcionWithRelations = {
 interface ActionState {
   errors?: {
     suscripcionId?: string[];
+    tipoPago?: string[];
     monto?: string[];
     metodoPago?: string[];
     fecha?: string[];
@@ -46,6 +47,7 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
   const [showTicket, setShowTicket] = useState(false);
   const [selectedSuscripcion, setSelectedSuscripcion] = useState<SuscripcionWithRelations | null>(null);
   const [incluirCuentaCorriente, setIncluirCuentaCorriente] = useState(false);
+  const [tipoPago, setTipoPago] = useState<'CUOTA_SUSCRIPCION' | 'OTRO'>('OTRO');
   const [montoCuota, setMontoCuota] = useState<number>(0);
   const [montoCuentaCorriente, setMontoCuentaCorriente] = useState<number>(0);
   
@@ -101,6 +103,7 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
               suscripciones={suscripciones}
               onSuscripcionChange={(susc) => {
                 setSelectedSuscripcion(susc);
+                setTipoPago('OTRO');
               }}
             />
             <div id="suscripcion-error" aria-live="polite" aria-atomic="true">
@@ -210,6 +213,7 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
 
           {/* Hidden inputs para cuenta corriente - siempre enviar con valores por defecto */}
           <input type="hidden" name="incluirCuentaCorriente" value={incluirCuentaCorriente ? "true" : "false"} />
+          <input type="hidden" name="tipoPago" value={tipoPago} />
           <input type="hidden" name="montoCuentaCorriente" value={incluirCuentaCorriente ? montoCuentaCorriente : 0} />
           <input type="hidden" name="cuentaCorrienteId" value={incluirCuentaCorriente && cuentaCorriente?.id ? cuentaCorriente.id : ''} />
         </div>
@@ -219,6 +223,57 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             💰 Detalles del Pago
           </h3>
+
+          {selectedSuscripcion && (
+            <div className="mb-4 rounded-lg border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-sm text-blue-900 dark:text-blue-200">
+                  Cuota del plan <span className="font-semibold">{selectedSuscripcion.plan.nombre}</span>: ${selectedSuscripcion.plan.precio.toFixed(2)}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMontoCuota(selectedSuscripcion.plan.precio);
+                      setTipoPago('CUOTA_SUSCRIPCION');
+                    }}
+                    className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+                  >
+                    🧾 Marcar como cuota
+                  </button>
+                  {tipoPago === 'CUOTA_SUSCRIPCION' && (
+                    <button
+                      type="button"
+                      onClick={() => setTipoPago('OTRO')}
+                      className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Marcar como otro pago
+                    </button>
+                  )}
+                </div>
+              </div>
+              {tipoPago === 'CUOTA_SUSCRIPCION' && (
+                <p className="mt-2 text-xs text-blue-800 dark:text-blue-300">
+                  Este pago renovará automáticamente la suscripción al registrar.
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mb-4">
+            <label htmlFor="tipoPago" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Tipo de Pago *
+            </label>
+            <select
+              id="tipoPago"
+              value={tipoPago}
+              onChange={(e) => setTipoPago(e.target.value as 'CUOTA_SUSCRIPCION' | 'OTRO')}
+              className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-2 px-3 text-sm"
+            >
+              <option value="OTRO">Otro pago (no renueva suscripción)</option>
+              <option value="CUOTA_SUSCRIPCION">Cuota de suscripción (renueva automáticamente)</option>
+            </select>
+          </div>
           
           {/* Grid para Monto y Fecha */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -233,7 +288,7 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
                 type="number"
                 step="0.01"
                 min="0"
-                defaultValue="0"
+                value={montoCuota}
                 onChange={(e) => setMontoCuota(parseFloat(e.target.value) || 0)}
                 onFocus={(e) => e.target.select()}
                 placeholder="Ingrese el monto"
@@ -344,7 +399,11 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
             disabled={isPending}
             className="flex items-center rounded-lg bg-blue-600 dark:bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50"
           >
-            {isPending ? 'Registrando...' : '✅ Registrar Pago'}
+            {isPending
+              ? 'Registrando...'
+              : tipoPago === 'CUOTA_SUSCRIPCION'
+                ? '✅ Registrar Pago y Renovar'
+                : '✅ Registrar Pago'}
           </button>
         </div>
 
