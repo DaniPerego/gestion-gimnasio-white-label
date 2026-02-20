@@ -260,26 +260,6 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
             </div>
           )}
 
-          <div className="mb-4">
-            <label htmlFor="tipoPago" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Tipo de Pago *
-            </label>
-            <select
-              id="tipoPago"
-              value={tipoPago}
-              onChange={(e) => {
-                const val = e.target.value as 'CUOTA_SUSCRIPCION' | 'OTRO';
-                setTipoPago(val);
-                if (val === 'OTRO') setMontoCuota(0);
-                if (val === 'CUOTA_SUSCRIPCION' && selectedSuscripcion) setMontoCuota(selectedSuscripcion.plan.precio);
-              }}
-              className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 py-2 px-3 text-sm"
-            >
-              <option value="OTRO">Otro pago (no renueva suscripción)</option>
-              <option value="CUOTA_SUSCRIPCION">Cuota de suscripción (renueva automáticamente)</option>
-            </select>
-          </div>
-          
           {/* Grid para Monto y Fecha */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {/* Monto */}
