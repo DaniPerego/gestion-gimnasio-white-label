@@ -72,6 +72,7 @@ export default function Form({ suscripciones, logoUrl }: { suscripciones: Suscri
     id: state.transaccion.id,
     socioNombre: `${state.transaccion.suscripcion.socio.nombre} ${state.transaccion.suscripcion.socio.apellido}`,
     planNombre: state.transaccion.suscripcion.plan.nombre,
+    tipoPago: state.transaccion.tipoPago,
     monto: Number(state.transaccion.monto),
     fecha: state.transaccion.fecha,
     metodoPago: state.transaccion.metodoPago,
