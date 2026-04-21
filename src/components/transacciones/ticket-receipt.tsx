@@ -16,6 +16,7 @@ type TicketData = {
   planNombre: string;
   monto: number;
   fecha: Date;
+  fechaVencimiento: Date;
   metodoPago: string;
   notas?: string | null;
   telefonoSocio?: string | null;
@@ -53,6 +54,13 @@ export default function TicketReceipt({ data, onClose, logoUrl }: TicketReceiptP
     }).format(currentDateTime); // Usamos la hora actual
 
     return `${dateStr} a las ${timeStr}`;
+  };
+
+  const formatDueDate = (dueDate: Date) => {
+    return new Intl.DateTimeFormat('es-AR', {
+      dateStyle: 'long',
+      timeZone: 'UTC',
+    }).format(new Date(dueDate));
   };
 
   const handleCopyToClipboard = async () => {
@@ -114,7 +122,7 @@ export default function TicketReceipt({ data, onClose, logoUrl }: TicketReceiptP
     // const finalPhone = cleanPhone.startsWith('54') ? cleanPhone : `549${cleanPhone}`;
     const finalPhone = cleanPhone; // Usamos directo lo que venga por ahora
 
-    const message = `Hola ${data.socioNombre}! 👋\n\nAdjunto te envío el comprobante de pago.\n\nFecha: ${formatMessageDate(data.fecha)}\nMonto: ${formatCurrency(data.monto)}\n\n¡Gracias por entrenar con nosotros! 💪`;
+    const message = `Hola ${data.socioNombre}.\n\nAdjunto te enviamos el comprobante de pago.\n\nFecha de pago: ${formatMessageDate(data.fecha)}\nFecha de vencimiento: ${formatDueDate(data.fechaVencimiento)}\nMonto: ${formatCurrency(data.monto)}\n\nGracias por entrenar con nosotros.\nAdministración, Bendito Cross`;
 
     const url = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
