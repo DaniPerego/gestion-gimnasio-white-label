@@ -6,9 +6,26 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { Decimal } from '@prisma/client/runtime/library';
 
+function buildRenewalDates(baseDate: Date, duracionMeses: number) {
+  const fechaInicio = new Date(baseDate);
+  fechaInicio.setHours(12, 0, 0, 0);
+
+  const fechaFin = new Date(fechaInicio);
+  fechaFin.setMonth(fechaFin.getMonth() + duracionMeses);
+
+  if (fechaFin.getDate() !== fechaInicio.getDate()) {
+    fechaFin.setDate(0);
+  }
+
+  fechaFin.setHours(23, 59, 59, 999);
+
+  return { fechaInicio, fechaFin };
+}
+
 const FormSchema = z.object({
   id: z.string(),
   suscripcionId: z.string().min(1, 'Debe seleccionar una suscripción'),
+  tipoPago: z.enum(['CUOTA_SUSCRIPCION', 'OTRO']),
   monto: z.coerce.number().min(0, 'El monto no puede ser negativo'),
   metodoPago: z.string().min(1, 'Seleccione un método de pago'),
   fecha: z.string().optional(),
@@ -30,9 +47,20 @@ const FormSchema = z.object({
 
 const CreateTransaccion = FormSchema.omit({ id: true });
 
+const UpdateTransaccionSchema = z.object({
+  id: z.string(),
+  suscripcionId: z.string().min(1, 'Debe seleccionar una suscripción'),
+  tipoPago: z.enum(['CUOTA_SUSCRIPCION', 'OTRO']),
+  monto: z.coerce.number().min(0, 'El monto no puede ser negativo'),
+  metodoPago: z.string().min(1, 'Seleccione un método de pago'),
+  fecha: z.string().optional(),
+  notas: z.string().min(1, 'La descripción es requerida'),
+});
+
 export async function createTransaccion(prevState: unknown, formData: FormData) {
   const validatedFields = CreateTransaccion.safeParse({
     suscripcionId: formData.get('suscripcionId'),
+    tipoPago: formData.get('tipoPago') ?? 'OTRO',
     monto: formData.get('monto'),
     metodoPago: formData.get('metodoPago'),
     fecha: formData.get('fecha'),
@@ -49,9 +77,20 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
     };
   }
 
-  const { suscripcionId, monto, metodoPago, fecha, notas, incluirCuentaCorriente, montoCuentaCorriente, cuentaCorrienteId } = validatedFields.data;
+  const { suscripcionId, tipoPago, monto, metodoPago, fecha, notas, incluirCuentaCorriente, montoCuentaCorriente, cuentaCorrienteId } = validatedFields.data;
 
   try {
+    const suscripcion = await prisma.suscripcion.findUnique({
+      where: { id: suscripcionId },
+      include: { plan: true },
+    });
+
+    if (!suscripcion) {
+      return {
+        message: 'La suscripción seleccionada no existe.',
+      };
+    }
+
     // Calcular monto total
     const montoTotal = monto + (incluirCuentaCorriente && montoCuentaCorriente ? montoCuentaCorriente : 0);
     let notasCompletas = notas || '';
@@ -70,6 +109,7 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
     const newTransaccion = await prisma.transaccion.create({
       data: {
         suscripcionId,
+        tipoPago,
         monto: montoTotal,
         metodoPago,
         ...(fecha && { fecha: new Date(fecha) }),
@@ -84,6 +124,21 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
         },
       },
     });
+
+    if (tipoPago === 'CUOTA_SUSCRIPCION' && monto > 0) {
+      const fechaPagoBase = fecha ? new Date(fecha) : new Date();
+      const baseRenovacion = suscripcion.fechaFin > fechaPagoBase ? suscripcion.fechaFin : fechaPagoBase;
+      const { fechaInicio, fechaFin } = buildRenewalDates(baseRenovacion, suscripcion.plan.duracionMeses);
+
+      await prisma.suscripcion.update({
+        where: { id: suscripcionId },
+        data: {
+          fechaInicio,
+          fechaFin,
+          activa: true,
+        },
+      });
+    }
 
     // Si se incluye pago de cuenta corriente, registrar el movimiento
     if (incluirCuentaCorriente && cuentaCorrienteId && montoCuentaCorriente && montoCuentaCorriente > 0) {
@@ -149,6 +204,8 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
     }
     
     revalidatePath('/admin/transacciones');
+    revalidatePath('/admin/suscripciones');
+    revalidatePath('/admin/asistencias');
     revalidatePath('/admin/cuenta-corriente');
     return {
       success: true,
@@ -164,9 +221,10 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
 }
 
 export async function updateTransaccion(prevState: unknown, formData: FormData) {
-  const validatedFields = FormSchema.safeParse({
+  const validatedFields = UpdateTransaccionSchema.safeParse({
     id: formData.get('id'),
     suscripcionId: formData.get('suscripcionId'),
+    tipoPago: formData.get('tipoPago') ?? 'OTRO',
     monto: formData.get('monto'),
     metodoPago: formData.get('metodoPago'),
     fecha: formData.get('fecha'),
@@ -180,13 +238,14 @@ export async function updateTransaccion(prevState: unknown, formData: FormData) 
     };
   }
 
-  const { id, suscripcionId, monto, metodoPago, fecha, notas } = validatedFields.data;
+  const { id, suscripcionId, tipoPago, monto, metodoPago, fecha, notas } = validatedFields.data;
 
   try {
     await prisma.transaccion.update({
       where: { id },
       data: {
         suscripcionId,
+        tipoPago,
         monto,
         metodoPago,
         ...(fecha && { fecha: new Date(fecha) }),

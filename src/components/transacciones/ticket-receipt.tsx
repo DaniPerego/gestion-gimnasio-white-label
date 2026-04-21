@@ -14,6 +14,7 @@ type TicketData = {
   id: string;
   socioNombre: string;
   planNombre: string;
+  tipoPago: 'CUOTA_SUSCRIPCION' | 'OTRO';
   monto: number;
   fecha: Date;
   fechaVencimiento: Date;
@@ -55,12 +56,40 @@ export default function TicketReceipt({ data, onClose, logoUrl }: TicketReceiptP
 
     return `${dateStr} a las ${timeStr}`;
   };
-
   const formatDueDate = (dueDate: Date) => {
     return new Intl.DateTimeFormat('es-AR', {
       dateStyle: 'long',
       timeZone: 'UTC',
     }).format(new Date(dueDate));
+
+  const normalizePhoneForWhatsApp = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+
+    if (!digits) return '';
+    if (digits.startsWith('549')) return digits;
+    if (digits.startsWith('54')) return `549${digits.slice(2)}`;
+    if (digits.startsWith('9')) return `54${digits}`;
+
+    return `549${digits}`;
+  };
+
+  const buildWhatsAppMessage = () => {
+    if (data.tipoPago === 'CUOTA_SUSCRIPCION') {
+      return `Hola ${data.socioNombre}.\n\nAdjunto te enviamos el comprobante de pago.\n\nFecha de pago: ${formatMessageDate(data.fecha)}\nFecha de vencimiento: ${formatDueDate(data.fechaVencimiento)}\nMonto: ${formatCurrency(data.monto)}\n\nGracias por entrenar con nosotros.\nAdministración, Bendito Cross`;
+    }
+
+    return [
+      `Hola ${data.socioNombre}.`,
+      '',
+      'Adjunto te enviamos el comprobante de pago.',
+      '',
+      `Concepto: ${data.notas?.trim() || 'Pago registrado'}`,
+      `Fecha de pago: ${formatMessageDate(data.fecha)}`,
+      `Monto: ${formatCurrency(data.monto)}`,
+      '',
+      'Gracias por entrenar con nosotros.',
+      'Administración, Bendito Cross',
+    ].join('\n');
   };
 
   const handleCopyToClipboard = async () => {
@@ -113,16 +142,13 @@ export default function TicketReceipt({ data, onClose, logoUrl }: TicketReceiptP
       return;
     }
 
-    // Limpiar el número de teléfono (quitar caracteres no numéricos)
-    const cleanPhone = data.telefonoSocio.replace(/\D/g, '');
-    
-    // Asumimos código de país si no está presente (ej. +54 para Argentina)
-    // Esto es opcional, depende de cómo guardes los teléfonos.
-    // Si guardas sin 549, podrías necesitar agregarlo.
-    // const finalPhone = cleanPhone.startsWith('54') ? cleanPhone : `549${cleanPhone}`;
-    const finalPhone = cleanPhone; // Usamos directo lo que venga por ahora
+    const finalPhone = normalizePhoneForWhatsApp(data.telefonoSocio);
+    if (!finalPhone) {
+      alert('El número de teléfono no es válido para WhatsApp.');
+      return;
+    }
 
-    const message = `Hola ${data.socioNombre}.\n\nAdjunto te enviamos el comprobante de pago.\n\nFecha de pago: ${formatMessageDate(data.fecha)}\nFecha de vencimiento: ${formatDueDate(data.fechaVencimiento)}\nMonto: ${formatCurrency(data.monto)}\n\nGracias por entrenar con nosotros.\nAdministración, Bendito Cross`;
+    const message = buildWhatsAppMessage();
 
     const url = `https://wa.me/${finalPhone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');

@@ -3,21 +3,32 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 const ITEMS_PER_PAGE = 10;
 
-export async function fetchSuscripciones(query: string, currentPage: number) {
+export async function fetchSuscripciones(query: string, currentPage: number, filtro?: string) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const now = new Date();
+  const next7Days = new Date(now);
+  next7Days.setDate(next7Days.getDate() + 7);
+
+  const whereCondition: any = {
+    OR: [
+      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
+      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
+      { socio: { dni: { contains: query, mode: 'insensitive' } } },
+    ],
+  };
+
+  if (filtro === 'vencidas') {
+    whereCondition.fechaFin = { lt: now };
+  } else if (filtro === 'por-vencer') {
+    whereCondition.fechaFin = { gte: now, lte: next7Days };
+  }
 
   try {
     const suscripciones = await prisma.suscripcion.findMany({
       skip: offset,
       take: ITEMS_PER_PAGE,
-      where: {
-        OR: [
-          { socio: { nombre: { contains: query, mode: 'insensitive' } } },
-          { socio: { apellido: { contains: query, mode: 'insensitive' } } },
-          { socio: { dni: { contains: query, mode: 'insensitive' } } },
-        ],
-      },
+      where: whereCondition,
       include: {
         socio: true,
         plan: true,
@@ -41,17 +52,29 @@ export async function fetchSuscripciones(query: string, currentPage: number) {
   }
 }
 
-export async function fetchSuscripcionesPages(query: string) {
+export async function fetchSuscripcionesPages(query: string, filtro?: string) {
   noStore();
+  const now = new Date();
+  const next7Days = new Date(now);
+  next7Days.setDate(next7Days.getDate() + 7);
+
+  const whereCondition: any = {
+    OR: [
+      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
+      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
+      { socio: { dni: { contains: query, mode: 'insensitive' } } },
+    ],
+  };
+
+  if (filtro === 'vencidas') {
+    whereCondition.fechaFin = { lt: now };
+  } else if (filtro === 'por-vencer') {
+    whereCondition.fechaFin = { gte: now, lte: next7Days };
+  }
+
   try {
     const count = await prisma.suscripcion.count({
-      where: {
-        OR: [
-          { socio: { nombre: { contains: query, mode: 'insensitive' } } },
-          { socio: { apellido: { contains: query, mode: 'insensitive' } } },
-          { socio: { dni: { contains: query, mode: 'insensitive' } } },
-        ],
-      },
+      where: whereCondition,
     });
     return Math.ceil(count / ITEMS_PER_PAGE);
   } catch (error) {
