@@ -33,6 +33,11 @@ export default async function Page({
           <span className="md:hidden">+</span>
         </Link>
       </div>
+      <div className="mt-4 rounded-lg bg-blue-50 dark:bg-blue-950 p-3">
+        <p className="text-sm text-blue-900 dark:text-blue-100">
+          Para ver cuotas pagadas y deuda por socio, usá el botón <strong>💳</strong> en Acciones.
+        </p>
+      </div>
       <Suspense fallback={<div>Cargando...</div>}>
         <SociosTable query={query} currentPage={currentPage} />
       </Suspense>
