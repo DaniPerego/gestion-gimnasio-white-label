@@ -38,6 +38,13 @@ export default async function SociosTable({
                     <p className="text-xl font-medium text-gray-900 dark:text-gray-100">{socio.dni}</p>
                   </div>
                   <div className="flex justify-end gap-2">
+                    <Link
+                      href={`/admin/cuenta-corriente/${socio.id}`}
+                      title="Ver cuotas/deuda"
+                      className="rounded-md border border-blue-300 dark:border-blue-600 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                    >
+                      💳
+                    </Link>
                     <WhatsAppButton telefono={socio.telefono} nombre={socio.nombre} />
                     <Link href={`/admin/socios/${socio.id}/edit`} className="rounded-md border border-gray-300 dark:border-gray-600 p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                         ✏️
@@ -96,6 +103,13 @@ export default async function SociosTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
+                        <Link
+                          href={`/admin/cuenta-corriente/${socio.id}`}
+                          title="Ver cuotas/deuda"
+                          className="rounded-md border border-blue-300 dark:border-blue-600 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                        >
+                          💳
+                        </Link>
                         <WhatsAppButton telefono={socio.telefono} nombre={socio.nombre} />
                         <Link href={`/admin/socios/${socio.id}/edit`} className="rounded-md border border-gray-300 dark:border-gray-600 p-2 hover:bg-gray-100 dark:hover:bg-gray-600">
                             ✏️

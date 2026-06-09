@@ -122,23 +122,63 @@ export async function fetchSocioConCuentaCorriente(socioId: string) {
             },
           },
         },
+        suscripciones: {
+          include: {
+            plan: true,
+            transacciones: {
+              where: {
+                tipoPago: 'CUOTA_SUSCRIPCION',
+              },
+              orderBy: {
+                fecha: 'desc',
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
 
     if (!socio) return null;
+
+    const cuotasPagadas = socio.suscripciones.flatMap((suscripcion) =>
+      suscripcion.transacciones.map((transaccion) => ({
+        id: transaccion.id,
+        suscripcionId: suscripcion.id,
+        planNombre: suscripcion.plan.nombre,
+        monto: transaccion.monto.toNumber(),
+        fecha: transaccion.fecha,
+        metodoPago: transaccion.metodoPago,
+        notas: transaccion.notas,
+      }))
+    ).sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+
+    const totalCuotasPagadas = cuotasPagadas.reduce((acc, cuota) => acc + cuota.monto, 0);
+
+    const saldoDeuda = socio.cuentaCorriente ? socio.cuentaCorriente.saldoDeuda.toNumber() : 0;
+    const saldoCredito = socio.cuentaCorriente ? socio.cuentaCorriente.saldoCredito.toNumber() : 0;
+    const deudaActual = Math.max(saldoDeuda - saldoCredito, 0);
 
     // Convertir Decimal a number
     return {
       ...socio,
       cuentaCorriente: socio.cuentaCorriente ? {
         ...socio.cuentaCorriente,
-        saldoDeuda: socio.cuentaCorriente.saldoDeuda.toNumber(),
-        saldoCredito: socio.cuentaCorriente.saldoCredito.toNumber(),
+        saldoDeuda,
+        saldoCredito,
         movimientos: socio.cuentaCorriente.movimientos.map(m => ({
           ...m,
           monto: m.monto.toNumber(),
         })),
       } : null,
+      resumenCuotas: {
+        cantidadPagadas: cuotasPagadas.length,
+        totalPagado: totalCuotasPagadas,
+        deudaActual,
+      },
+      cuotasPagadas,
     };
   } catch (error) {
     console.error('Database Error:', error);

@@ -10,6 +10,20 @@ type Socio = {
   nombre: string;
   apellido: string;
   dni: string;
+  resumenCuotas: {
+    cantidadPagadas: number;
+    totalPagado: number;
+    deudaActual: number;
+  };
+  cuotasPagadas: {
+    id: string;
+    suscripcionId: string;
+    planNombre: string;
+    monto: number;
+    fecha: Date;
+    metodoPago: string;
+    notas: string | null;
+  }[];
   cuentaCorriente: {
     id: string;
     saldoDeuda: number;
@@ -68,6 +82,8 @@ export default function CuentaCorrienteManager({ socio }: { socio: Socio }) {
   const puedeRegistrarMovimientos = cuentaCorriente.estado !== 'CERRADO'; // Permite movimientos en ACTIVO y SALDADO
   const puedeCerrar = cuentaCorriente.estado !== 'CERRADO' && saldoNeto === 0; // Solo si el saldo es 0
   const puedeReabrir = cuentaCorriente.estado === 'CERRADO';
+  const cuotasPagadas = socio.cuotasPagadas ?? [];
+  const resumenCuotas = socio.resumenCuotas;
 
   return (
     <div className="space-y-6">
@@ -132,6 +148,71 @@ export default function CuentaCorrienteManager({ socio }: { socio: Socio }) {
             ${Math.abs(saldoNeto).toFixed(2)}
           </p>
         </div>
+      </div>
+
+      {/* Resumen e historial de cuotas */}
+      <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          Cuotas del Socio
+        </h2>
+
+        <div className="grid gap-4 md:grid-cols-3 mb-6">
+          <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 p-4">
+            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Cuotas Pagadas</p>
+            <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-200">
+              {resumenCuotas.cantidadPagadas}
+            </p>
+          </div>
+          <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
+            <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Pagado en Cuotas</p>
+            <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">
+              ${resumenCuotas.totalPagado.toFixed(2)}
+            </p>
+          </div>
+          <div className="rounded-lg bg-orange-50 dark:bg-orange-900/20 p-4">
+            <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Adeuda Actualmente</p>
+            <p className="text-2xl font-bold text-orange-800 dark:text-orange-200">
+              ${resumenCuotas.deudaActual.toFixed(2)}
+            </p>
+          </div>
+        </div>
+
+        {cuotasPagadas.length === 0 ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-6">
+            Este socio todavía no registra pagos de cuota.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-left text-gray-700 dark:text-gray-200">
+              <thead className="bg-gray-50 dark:bg-gray-700/40 text-xs uppercase tracking-wide">
+                <tr>
+                  <th className="px-4 py-3">Fecha</th>
+                  <th className="px-4 py-3">Plan</th>
+                  <th className="px-4 py-3">Método</th>
+                  <th className="px-4 py-3 text-right">Monto</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cuotasPagadas.map((cuota) => (
+                  <tr key={cuota.id} className="border-b border-gray-100 dark:border-gray-700">
+                    <td className="px-4 py-3">
+                      {new Date(cuota.fecha).toLocaleDateString('es-AR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                      })}
+                    </td>
+                    <td className="px-4 py-3">{cuota.planNombre}</td>
+                    <td className="px-4 py-3">{cuota.metodoPago}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-emerald-700 dark:text-emerald-300">
+                      ${cuota.monto.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Formulario para registrar movimiento */}
