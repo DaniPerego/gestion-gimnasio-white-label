@@ -3,12 +3,51 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 const ITEMS_PER_PAGE = 10;
 
+function contarCuotasVencidas(fechaFin: Date, duracionMeses: number, now: Date) {
+  if (fechaFin >= now) return 0;
+
+  const stepMonths = Math.max(duracionMeses, 1);
+  let vencidas = 0;
+  let proximoVencimiento = new Date(fechaFin);
+
+  while (proximoVencimiento < now) {
+    vencidas += 1;
+    proximoVencimiento = new Date(proximoVencimiento);
+    proximoVencimiento.setMonth(proximoVencimiento.getMonth() + stepMonths);
+
+    if (vencidas > 120) break;
+  }
+
+  return vencidas;
+}
+
+function aplicarFiltroSuscripciones(suscripciones: any[], filtro?: string, now = new Date()) {
+  return suscripciones.filter((suscripcion) => {
+    const isExpired = suscripcion.fechaFin < now;
+    const cuotasVencidas = contarCuotasVencidas(suscripcion.fechaFin, suscripcion.plan.duracionMeses, now);
+
+    if (filtro === 'vencidas') {
+      return isExpired;
+    }
+
+    if (filtro === 'por-vencer') {
+      const next7Days = new Date(now);
+      next7Days.setDate(next7Days.getDate() + 7);
+      return suscripcion.fechaFin >= now && suscripcion.fechaFin <= next7Days;
+    }
+
+    if (filtro === 'vencidas-mas') {
+      return isExpired && cuotasVencidas > 1;
+    }
+
+    return true;
+  });
+}
+
 export async function fetchSuscripciones(query: string, currentPage: number, filtro?: string) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
   const now = new Date();
-  const next7Days = new Date(now);
-  next7Days.setDate(next7Days.getDate() + 7);
 
   const whereCondition: any = {
     OR: [
@@ -18,16 +57,16 @@ export async function fetchSuscripciones(query: string, currentPage: number, fil
     ],
   };
 
-  if (filtro === 'vencidas') {
+  if (filtro === 'vencidas' || filtro === 'vencidas-mas') {
     whereCondition.fechaFin = { lt: now };
   } else if (filtro === 'por-vencer') {
+    const next7Days = new Date(now);
+    next7Days.setDate(next7Days.getDate() + 7);
     whereCondition.fechaFin = { gte: now, lte: next7Days };
   }
 
   try {
     const suscripciones = await prisma.suscripcion.findMany({
-      skip: offset,
-      take: ITEMS_PER_PAGE,
       where: whereCondition,
       include: {
         socio: true,
@@ -37,10 +76,16 @@ export async function fetchSuscripciones(query: string, currentPage: number, fil
         createdAt: 'desc',
       },
     });
+
+    const filtradas = aplicarFiltroSuscripciones(suscripciones, filtro, now);
+    const paginadas = filtro === 'vencidas-mas'
+      ? filtradas.slice(offset, offset + ITEMS_PER_PAGE)
+      : filtradas.slice(offset, offset + ITEMS_PER_PAGE);
     
     // Convertir Decimal a number para evitar error de serialización
-    return suscripciones.map(s => ({
+    return paginadas.map(s => ({
       ...s,
+      cuotasVencidas: contarCuotasVencidas(s.fechaFin, s.plan.duracionMeses, now),
       plan: {
         ...s.plan,
         precio: Number(s.plan.precio)
@@ -55,8 +100,6 @@ export async function fetchSuscripciones(query: string, currentPage: number, fil
 export async function fetchSuscripcionesPages(query: string, filtro?: string) {
   noStore();
   const now = new Date();
-  const next7Days = new Date(now);
-  next7Days.setDate(next7Days.getDate() + 7);
 
   const whereCondition: any = {
     OR: [
@@ -66,17 +109,24 @@ export async function fetchSuscripcionesPages(query: string, filtro?: string) {
     ],
   };
 
-  if (filtro === 'vencidas') {
+  if (filtro === 'vencidas' || filtro === 'vencidas-mas') {
     whereCondition.fechaFin = { lt: now };
   } else if (filtro === 'por-vencer') {
+    const next7Days = new Date(now);
+    next7Days.setDate(next7Days.getDate() + 7);
     whereCondition.fechaFin = { gte: now, lte: next7Days };
   }
 
   try {
-    const count = await prisma.suscripcion.count({
+    const suscripciones = await prisma.suscripcion.findMany({
       where: whereCondition,
+      include: {
+        plan: true,
+      },
     });
-    return Math.ceil(count / ITEMS_PER_PAGE);
+
+    const filtradas = aplicarFiltroSuscripciones(suscripciones, filtro, now);
+    return Math.ceil(filtradas.length / ITEMS_PER_PAGE);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of subscriptions.');

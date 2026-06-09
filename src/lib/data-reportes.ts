@@ -1,6 +1,29 @@
 import prisma from '@/lib/prisma';
 import { unstable_noStore as noStore } from 'next/cache';
 
+type HistorialPago = {
+  id: string;
+  fecha: Date;
+  monto: number;
+  metodoPago: string;
+  notas: string;
+  tipoPago: string;
+  planNombre: string;
+  suscripcionEstado: string;
+  suscripcionFechaFin: Date;
+};
+
+type ResumenEstadoHistorial = {
+  estado: string;
+  cantidad: number;
+  total: number;
+};
+
+function getEstadoSuscripcion(activa: boolean, fechaFin: Date, now: Date) {
+  if (!activa) return 'Suspendida';
+  return fechaFin < now ? 'Vencida' : 'Activa';
+}
+
 export async function fetchIngresosPorMes() {
   noStore();
   try {
@@ -288,5 +311,102 @@ export async function fetchTransaccionesPorDia(año: number, mes: number, dia: n
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Error al obtener transacciones del día.');
+  }
+}
+
+export async function fetchSociosParaHistorialPagos() {
+  noStore();
+  try {
+    const socios = await prisma.socio.findMany({
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        dni: true,
+      },
+      orderBy: [
+        { apellido: 'asc' },
+        { nombre: 'asc' },
+      ],
+    });
+
+    return socios;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Error al obtener socios para historial de pagos.');
+  }
+}
+
+export async function fetchHistorialPagosPorSocio(socioId: string, estadoSuscripcion?: string) {
+  noStore();
+  try {
+    const socio = await prisma.socio.findUnique({
+      where: { id: socioId },
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        dni: true,
+        suscripciones: {
+          include: {
+            plan: true,
+            transacciones: {
+              orderBy: {
+                fecha: 'desc',
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+      },
+    });
+
+    if (!socio) {
+      return null;
+    }
+
+    const now = new Date();
+
+    const historial: HistorialPago[] = socio.suscripciones.flatMap((suscripcion) =>
+      suscripcion.transacciones.map((transaccion) => ({
+        id: transaccion.id,
+        fecha: transaccion.fecha,
+        monto: Number(transaccion.monto),
+        metodoPago: transaccion.metodoPago,
+        notas: transaccion.notas || '',
+        tipoPago: transaccion.tipoPago,
+        planNombre: suscripcion.plan.nombre,
+        suscripcionEstado: getEstadoSuscripcion(suscripcion.activa, suscripcion.fechaFin, now),
+        suscripcionFechaFin: suscripcion.fechaFin,
+      }))
+    ).sort((a, b) => b.fecha.getTime() - a.fecha.getTime());
+
+    const historialFiltrado = estadoSuscripcion
+      ? historial.filter((item) => item.suscripcionEstado === estadoSuscripcion)
+      : historial;
+
+    const resumenPorEstado: ResumenEstadoHistorial[] = ['Activa', 'Vencida', 'Suspendida'].map((estado) => {
+      const items = historial.filter((item) => item.suscripcionEstado === estado);
+      return {
+        estado,
+        cantidad: items.length,
+        total: items.reduce((acc, item) => acc + item.monto, 0),
+      };
+    });
+
+    const totalPagado = historialFiltrado.reduce((acc, item) => acc + item.monto, 0);
+
+    return {
+      socio,
+      historial: historialFiltrado,
+      resumenPorEstado,
+      totalPagado,
+      cantidadPagos: historialFiltrado.length,
+    };
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Error al obtener historial de pagos por socio.');
   }
 }

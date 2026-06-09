@@ -1,15 +1,167 @@
-import { fetchIngresosPorMes, fetchNuevosSociosPorMes, fetchAsistenciasPorDia, fetchIngresosPorTipo } from '@/lib/data-reportes';
+import { fetchIngresosPorMes, fetchNuevosSociosPorMes, fetchAsistenciasPorDia, fetchIngresosPorTipo, fetchSociosParaHistorialPagos, fetchHistorialPagosPorSocio } from '@/lib/data-reportes';
 import { IngresosPorDia } from '@/components/reportes/ingresos-por-dia';
+import { formatFechaBuenosAires } from '@/lib/date-utils';
+import SocioHistorialSearchSelect from '@/components/reportes/socio-historial-search-select';
+import StatusFilter from '@/components/ui/status-filter';
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    socioId?: string;
+    estadoSuscripcion?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const socioId = params?.socioId || '';
+  const estadoSuscripcion = params?.estadoSuscripcion || '';
+
   const ingresos = await fetchIngresosPorMes();
   const nuevosSocios = await fetchNuevosSociosPorMes();
   const asistenciasPorDia = await fetchAsistenciasPorDia();
   const ingresosPorTipo = await fetchIngresosPorTipo();
+  const sociosPagos = await fetchSociosParaHistorialPagos();
+  const historialPagos = socioId ? await fetchHistorialPagosPorSocio(socioId, estadoSuscripcion || undefined) : null;
 
   return (
     <main className="w-full">
       <h1 className="mb-8 text-2xl font-bold text-gray-800 dark:text-white">Reportes y Estadísticas</h1>
+
+      <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-700">Historial de pagos por socio</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Seleccioná un socio para ver todas sus transacciones, incluso si la suscripción ya fue suspendida o vencida.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 md:flex-row md:items-end">
+            <SocioHistorialSearchSelect socios={sociosPagos} />
+            <StatusFilter
+              filterKey="estadoSuscripcion"
+              placeholder="Estado"
+              options={[
+                { value: 'Activa', label: 'Activa' },
+                { value: 'Vencida', label: 'Vencida' },
+                { value: 'Suspendida', label: 'Suspendida' },
+              ]}
+            />
+          </div>
+        </div>
+
+        {historialPagos ? (
+          <div className="mt-6 space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg bg-blue-50 p-4">
+                <p className="text-sm font-medium text-blue-700">Socio</p>
+                <p className="text-lg font-semibold text-blue-900">
+                  {historialPagos.socio.apellido}, {historialPagos.socio.nombre}
+                </p>
+                <p className="text-sm text-blue-700">DNI: {historialPagos.socio.dni}</p>
+              </div>
+              <div className="rounded-lg bg-emerald-50 p-4">
+                <p className="text-sm font-medium text-emerald-700">Pagos registrados</p>
+                <p className="text-2xl font-bold text-emerald-900">{historialPagos.cantidadPagos}</p>
+              </div>
+              <div className="rounded-lg bg-orange-50 p-4">
+                <p className="text-sm font-medium text-orange-700">Total pagado</p>
+                <p className="text-2xl font-bold text-orange-900">
+                  {new Intl.NumberFormat('es-AR', {
+                    style: 'currency',
+                    currency: 'ARS',
+                  }).format(historialPagos.totalPagado)}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {historialPagos.resumenPorEstado.map((item) => (
+                <div
+                  key={item.estado}
+                  className={`rounded-lg p-4 ${
+                    item.estado === 'Activa'
+                      ? 'bg-green-50'
+                      : item.estado === 'Vencida'
+                      ? 'bg-red-50'
+                      : 'bg-gray-50'
+                  }`}
+                >
+                  <p className={`text-sm font-medium ${
+                    item.estado === 'Activa'
+                      ? 'text-green-700'
+                      : item.estado === 'Vencida'
+                      ? 'text-red-700'
+                      : 'text-gray-700'
+                  }`}>
+                    {item.estado}
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900">{item.cantidad} pagos</p>
+                  <p className="text-sm text-gray-700">
+                    {new Intl.NumberFormat('es-AR', {
+                      style: 'currency',
+                      currency: 'ARS',
+                    }).format(item.total)}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {historialPagos.historial.length === 0 ? (
+              <p className="rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+                Este socio no tiene pagos registrados.
+              </p>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border border-gray-200">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-gray-50 text-xs uppercase text-gray-600">
+                    <tr>
+                      <th className="px-4 py-3">Fecha</th>
+                      <th className="px-4 py-3">Plan</th>
+                      <th className="px-4 py-3">Estado suscripción</th>
+                      <th className="px-4 py-3">Tipo</th>
+                      <th className="px-4 py-3">Método</th>
+                      <th className="px-4 py-3 text-right">Monto</th>
+                      <th className="px-4 py-3">Notas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {historialPagos.historial.map((item) => (
+                      <tr key={item.id} className="border-t border-gray-100 hover:bg-gray-50">
+                        <td className="px-4 py-3 text-gray-700">{formatFechaBuenosAires(item.fecha)}</td>
+                        <td className="px-4 py-3 text-gray-700">{item.planNombre}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+                            item.suscripcionEstado === 'Activa'
+                              ? 'bg-green-100 text-green-800'
+                              : item.suscripcionEstado === 'Vencida'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {item.suscripcionEstado}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-700">{item.tipoPago}</td>
+                        <td className="px-4 py-3 text-gray-700">{item.metodoPago}</td>
+                        <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                          {new Intl.NumberFormat('es-AR', {
+                            style: 'currency',
+                            currency: 'ARS',
+                          }).format(item.monto)}
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">{item.notas || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-6 rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
+            Elegí un socio para ver su historial de pagos.
+          </div>
+        )}
+      </div>
       
       {/* Fila 1: Ingresos por Tipo y Asistencias por Día */}
       <div className="grid gap-6 mb-6 md:grid-cols-2">
