@@ -3,6 +3,7 @@ import { IngresosPorDia } from '@/components/reportes/ingresos-por-dia';
 import { formatFechaBuenosAires } from '@/lib/date-utils';
 import SocioHistorialSearchSelect from '@/components/reportes/socio-historial-search-select';
 import StatusFilter from '@/components/ui/status-filter';
+import HistorialPagosActions from '@/components/reportes/historial-pagos-actions';
 
 export default async function Page({
   searchParams,
@@ -22,6 +23,21 @@ export default async function Page({
   const ingresosPorTipo = await fetchIngresosPorTipo();
   const sociosPagos = await fetchSociosParaHistorialPagos();
   const historialPagos = socioId ? await fetchHistorialPagosPorSocio(socioId, estadoSuscripcion || undefined) : null;
+  const historialExportable = historialPagos
+    ? {
+        socioNombre: `${historialPagos.socio.apellido}, ${historialPagos.socio.nombre}`,
+        socioDni: historialPagos.socio.dni,
+        rows: historialPagos.historial.map((item) => ({
+          fecha: formatFechaBuenosAires(item.fecha),
+          planNombre: item.planNombre,
+          suscripcionEstado: item.suscripcionEstado,
+          tipoPago: item.tipoPago,
+          metodoPago: item.metodoPago,
+          monto: item.monto,
+          notas: item.notas,
+        })),
+      }
+    : null;
 
   return (
     <main className="w-full">
@@ -51,6 +67,16 @@ export default async function Page({
 
         {historialPagos ? (
           <div className="mt-6 space-y-4">
+            {historialExportable && (
+              <div className="flex justify-end">
+                <HistorialPagosActions
+                  socioNombre={historialExportable.socioNombre}
+                  socioDni={historialExportable.socioDni}
+                  rows={historialExportable.rows}
+                />
+              </div>
+            )}
+
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-lg bg-blue-50 p-4">
                 <p className="text-sm font-medium text-blue-700">Socio</p>
