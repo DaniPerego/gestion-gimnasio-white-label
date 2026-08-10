@@ -93,7 +93,7 @@ export async function fetchSuscripciones(query: string, currentPage: number, fil
     }));
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch subscriptions.');
+    throw new Error('Error al obtener suscripciones.');
   }
 }
 
@@ -129,7 +129,7 @@ export async function fetchSuscripcionesPages(query: string, filtro?: string) {
     return Math.ceil(filtradas.length / ITEMS_PER_PAGE);
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of subscriptions.');
+    throw new Error('Error al obtener el total de suscripciones.');
   }
 }
 
@@ -155,6 +155,6 @@ export async function fetchSuscripcionById(id: string) {
     };
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch subscription.');
+    throw new Error('Error al obtener la suscripción.');
   }
 }

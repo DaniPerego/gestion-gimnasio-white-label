@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { updateTransaccion } from '@/lib/actions-transacciones';
 import SuscripcionSearchSelect from './suscripcion-search-select';
+import { useRouter } from 'next/navigation';
 
 type Transaccion = {
   id: string;
@@ -41,8 +42,20 @@ export default function EditForm({
 }) {
   const initialState = { message: '', errors: {} };
   const [state, dispatch, isPending] = useActionState(updateTransaccion, initialState);
+  const router = useRouter();
 
   const fechaFormato = transaccion.fecha.toISOString().split('T')[0];
+
+  // Redirigir después de mostrar mensaje de éxito
+  useEffect(() => {
+    if (state.success) {
+      const timer = setTimeout(() => {
+        router.push('/admin/transacciones');
+        router.refresh();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [state.success, router]);
 
   return (
     <form action={dispatch}>
@@ -186,10 +199,11 @@ export default function EditForm({
               <option value="" disabled>
                 Seleccione un método
               </option>
-              <option value="EFECTIVO">Efectivo</option>
-              <option value="TARJETA">Tarjeta</option>
-              <option value="TRANSFERENCIA">Transferencia</option>
-              <option value="OTRO">Otro</option>
+              <option value="EFECTIVO">💵 Efectivo</option>
+              <option value="TRANSFERENCIA">🏦 Transferencia</option>
+              <option value="TARJETA_DEBITO">💳 Tarjeta Débito</option>
+              <option value="TARJETA_CREDITO">💳 Tarjeta Crédito</option>
+              <option value="OTROS">📱 Otros</option>
             </select>
           </div>
           <div id="metodo-error" aria-live="polite" aria-atomic="true">
@@ -204,7 +218,7 @@ export default function EditForm({
 
         <div aria-live="polite" aria-atomic="true">
           {state.message && (
-            <p className="mt-2 text-sm text-red-500" key={state.message}>
+            <p className={`mt-2 text-sm ${state.success ? 'text-green-600' : 'text-red-500'}`} key={state.message}>
               {state.message}
             </p>
           )}

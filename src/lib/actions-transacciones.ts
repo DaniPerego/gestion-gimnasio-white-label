@@ -127,8 +127,7 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
 
     if (tipoPago === 'CUOTA_SUSCRIPCION' && monto > 0) {
       const fechaPagoBase = fecha ? new Date(fecha) : new Date();
-      const baseRenovacion = suscripcion.fechaFin > fechaPagoBase ? suscripcion.fechaFin : fechaPagoBase;
-      const { fechaInicio, fechaFin } = buildRenewalDates(baseRenovacion, suscripcion.plan.duracionMeses);
+      const { fechaInicio, fechaFin } = buildRenewalDates(fechaPagoBase, suscripcion.plan.duracionMeses);
 
       await prisma.suscripcion.update({
         where: { id: suscripcionId },
@@ -187,7 +186,9 @@ export async function createTransaccion(prevState: unknown, formData: FormData) 
               cuentaCorrienteId,
               tipo: 'PAGO',
               monto: new Decimal(montoCuentaCorriente),
-              descripcion: `Pago de cuota + cuenta corriente (Transacción #${newTransaccion.id})`,
+              descripcion: monto > 0 
+                ? `Pago de cuota + cuenta corriente (Transacción #${newTransaccion.id})`
+                : `Pago de cuenta corriente (Transacción #${newTransaccion.id})`,
               transaccionId: newTransaccion.id,
             },
           }),
@@ -241,7 +242,7 @@ export async function updateTransaccion(prevState: unknown, formData: FormData) 
   const { id, suscripcionId, tipoPago, monto, metodoPago, fecha, notas } = validatedFields.data;
 
   try {
-    await prisma.transaccion.update({
+    const updatedTransaccion = await prisma.transaccion.update({
       where: { id },
       data: {
         suscripcionId,
@@ -250,6 +251,14 @@ export async function updateTransaccion(prevState: unknown, formData: FormData) 
         metodoPago,
         ...(fecha && { fecha: new Date(fecha) }),
         notas: notas || null,
+      },
+      include: {
+        suscripcion: {
+          include: {
+            socio: true,
+            plan: true,
+          },
+        },
       },
     });
   } catch (error) {
@@ -260,7 +269,13 @@ export async function updateTransaccion(prevState: unknown, formData: FormData) 
   }
 
   revalidatePath('/admin/transacciones');
-  redirect('/admin/transacciones');
+  revalidatePath('/admin/suscripciones');
+  revalidatePath('/admin/asistencias');
+  revalidatePath('/admin/cuenta-corriente');
+  return {
+    success: true,
+    message: 'Transacción actualizada correctamente',
+  };
 }
 
 export async function deleteTransaccion(id: string) {

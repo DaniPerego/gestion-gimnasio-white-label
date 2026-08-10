@@ -45,7 +45,7 @@ export async function fetchTransacciones(query: string, currentPage: number) {
     }));
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch transactions.');
+    throw new Error('Error al obtener transacciones.');
   }
 }
 
@@ -64,7 +64,7 @@ export async function fetchTransaccionesPages(query: string) {
     return Math.ceil(count / ITEMS_PER_PAGE);
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of transactions.');
+    throw new Error('Error al obtener el total de transacciones.');
   }
 }
 
@@ -102,7 +102,7 @@ export async function fetchActiveSuscripcionesForSelect() {
     }));
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch subscriptions for payments.');
+    throw new Error('Error al obtener suscripciones para pagos.');
   }
 }
 
@@ -138,6 +138,6 @@ export async function fetchTransaccionById(id: string) {
     };
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch transaction.');
+    throw new Error('Error al obtener la transacción.');
   }
 }
