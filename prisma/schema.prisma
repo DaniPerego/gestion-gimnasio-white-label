@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -65,7 +65,7 @@ model Plan {
   id                String        @id @default(cuid())
   nombre            String
   descripcion       String?
-  precio            Decimal
+  precio            Decimal   @db.Decimal(10, 2)
   duracionMeses     Int
   activo            Boolean       @default(true)
   createdAt         DateTime      @default(now())
@@ -93,7 +93,7 @@ model Transaccion {
   id                         String                      @id @default(cuid())
   suscripcionId              String
   tipoPago                   String                      @default("OTRO")
-  monto                      Decimal
+  monto                      Decimal             @db.Decimal(10, 2)
   fecha                      DateTime                    @default(now())
   metodoPago                 String
   notas                      String?
@@ -113,8 +113,8 @@ model CuentaCorriente {
   id           String                      @id @default(cuid())
   socioId      String                      @unique
   socio        Socio                       @relation(fields: [socioId], references: [id], onDelete: Cascade)
-  saldoDeuda   Decimal                     @default(0)
-  saldoCredito Decimal                     @default(0)
+  saldoDeuda   Decimal                     @db.Decimal(10, 2) @default(0)
+  saldoCredito Decimal                     @db.Decimal(10, 2) @default(0)
   descripcion  String?
   estado       String                      @default("ACTIVO")
   movimientos  MovimientoCuentaCorriente[]
@@ -127,7 +127,7 @@ model MovimientoCuentaCorriente {
   cuentaCorrienteId String
   cuentaCorriente   CuentaCorriente @relation(fields: [cuentaCorrienteId], references: [id], onDelete: Cascade)
   tipo              String
-  monto             Decimal
+  monto             Decimal         @db.Decimal(10, 2)
   descripcion       String
   transaccionId     String?
   transaccion       Transaccion?    @relation(fields: [transaccionId], references: [id])

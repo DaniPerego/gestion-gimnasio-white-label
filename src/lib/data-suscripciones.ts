@@ -51,8 +51,8 @@ export async function fetchSuscripciones(query: string, currentPage: number, fil
 
   const whereCondition: any = {
     OR: [
-      { socio: { nombre: { contains: query } } },
-      { socio: { apellido: { contains: query } } },
+      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
+      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
       { socio: { dni: { contains: query } } },
     ],
   };
@@ -103,8 +103,8 @@ export async function fetchSuscripcionesPages(query: string, filtro?: string) {
 
   const whereCondition: any = {
     OR: [
-      { socio: { nombre: { contains: query } } },
-      { socio: { apellido: { contains: query } } },
+      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
+      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
       { socio: { dni: { contains: query } } },
     ],
   };

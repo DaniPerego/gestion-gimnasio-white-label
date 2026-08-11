@@ -18,8 +18,8 @@ export async function fetchSociosConCuentaCorriente(
     const whereCondition: any = {
       activo: true,
       OR: [
-        { nombre: { contains: query } },
-        { apellido: { contains: query } },
+        { nombre: { contains: query, mode: 'insensitive' } },
+        { apellido: { contains: query, mode: 'insensitive' } },
         { dni: { contains: query } },
       ],
     };
@@ -76,8 +76,8 @@ export async function fetchSociosCuentaCorrientePages(query: string, filtro?: st
     const whereCondition: any = {
       activo: true,
       OR: [
-        { nombre: { contains: query } },
-        { apellido: { contains: query } },
+        { nombre: { contains: query, mode: 'insensitive' } },
+        { apellido: { contains: query, mode: 'insensitive' } },
         { dni: { contains: query } },
       ],
     };

@@ -13,8 +13,8 @@ export async function fetchTransacciones(query: string, currentPage: number) {
       take: ITEMS_PER_PAGE,
       where: {
         OR: [
-          { suscripcion: { socio: { nombre: { contains: query } } } },
-          { suscripcion: { socio: { apellido: { contains: query } } } },
+          { suscripcion: { socio: { nombre: { contains: query, mode: 'insensitive' } } } },
+          { suscripcion: { socio: { apellido: { contains: query, mode: 'insensitive' } } } },
           { suscripcion: { socio: { dni: { contains: query } } } },
         ],
       },
@@ -55,8 +55,8 @@ export async function fetchTransaccionesPages(query: string) {
     const count = await prisma.transaccion.count({
       where: {
         OR: [
-          { suscripcion: { socio: { nombre: { contains: query } } } },
-          { suscripcion: { socio: { apellido: { contains: query } } } },
+          { suscripcion: { socio: { nombre: { contains: query, mode: 'insensitive' } } } },
+          { suscripcion: { socio: { apellido: { contains: query, mode: 'insensitive' } } } },
           { suscripcion: { socio: { dni: { contains: query } } } },
         ],
       },

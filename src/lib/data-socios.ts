@@ -11,10 +11,10 @@ export async function fetchFilteredSocios(query: string, currentPage: number) {
     const socios = await prisma.socio.findMany({
       where: {
         OR: [
-          { nombre: { contains: query } },
-          { apellido: { contains: query } },
+          { nombre: { contains: query, mode: 'insensitive' } },
+          { apellido: { contains: query, mode: 'insensitive' } },
           { dni: { contains: query } },
-          { email: { contains: query } },
+          { email: { contains: query, mode: 'insensitive' } },
         ],
       },
       orderBy: { createdAt: 'desc' },
@@ -34,10 +34,10 @@ export async function fetchSociosPages(query: string) {
     const count = await prisma.socio.count({
       where: {
         OR: [
-          { nombre: { contains: query } },
-          { apellido: { contains: query } },
+          { nombre: { contains: query, mode: 'insensitive' } },
+          { apellido: { contains: query, mode: 'insensitive' } },
           { dni: { contains: query } },
-          { email: { contains: query } },
+          { email: { contains: query, mode: 'insensitive' } },
         ],
       },
     });
