@@ -1,19 +1,28 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
-import { getConfiguracion } from '@/lib/data';
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const size = parseInt(searchParams.get('size') || '192');
-    
-    const config = await getConfiguracion();
-    const logoUrl = config?.fondoUrl;
-    const primaryColor = config?.colorPrimario || '#DC2626';
-    const gymName = config?.nombreGimnasio || 'GYM';
+
+    let primaryColor = '#DC2626';
+    let gymName = 'GYM';
+    let logoUrl: string | null = null;
+
+    try {
+      const { getConfiguracion } = await import('@/lib/data');
+      const config = await getConfiguracion();
+      if (config) {
+        primaryColor = config.colorPrimario || '#DC2626';
+        gymName = config.nombreGimnasio || 'GYM';
+        logoUrl = config.fondoUrl;
+      }
+    } catch {
+      // DB not ready yet, use defaults
+    }
 
     const response = new ImageResponse(
       (

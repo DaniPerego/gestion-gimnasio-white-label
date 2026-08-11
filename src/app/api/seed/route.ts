@@ -6,44 +6,52 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    // Check if admin already exists
+    const results: string[] = [];
+
+    // Create admin if not exists
     const existing = await prisma.usuario.findUnique({
       where: { email: 'admin@gimnasio.com' },
     });
 
-    if (existing) {
-      return NextResponse.json({ message: 'Admin ya existe, seed no necesario' });
+    if (!existing) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await prisma.usuario.create({
+        data: {
+          email: 'admin@gimnasio.com',
+          nombre: 'Administrador Principal',
+          password: hashedPassword,
+          rol: 'ADMIN',
+          permisoSocios: true,
+          permisoPlanes: true,
+          permisoSuscripciones: true,
+          permisoAsistencias: true,
+          permisoReportes: true,
+          permisoConfiguracion: true,
+          permisoUsuarios: true,
+          permisoTransacciones: true,
+        },
+      });
+      results.push('Admin creado');
+    } else {
+      results.push('Admin ya existía');
     }
 
-    // Create admin user
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    await prisma.usuario.create({
-      data: {
-        email: 'admin@gimnasio.com',
-        nombre: 'Administrador Principal',
-        password: hashedPassword,
-        rol: 'ADMIN',
-        permisoSocios: true,
-        permisoPlanes: true,
-        permisoSuscripciones: true,
-        permisoAsistencias: true,
-        permisoReportes: true,
-        permisoConfiguracion: true,
-        permisoUsuarios: true,
-        permisoTransacciones: true,
-      },
-    });
+    // Create config if not exists
+    const config = await prisma.configuracion.findFirst();
+    if (!config) {
+      await prisma.configuracion.create({
+        data: {
+          nombreGimnasio: 'Gimnasio Demo',
+          colorPrimario: '#2563eb',
+          colorSecundario: '#1e40af',
+        },
+      });
+      results.push('Configuración creada');
+    } else {
+      results.push('Configuración ya existía');
+    }
 
-    // Create default configuration
-    await prisma.configuracion.create({
-      data: {
-        nombreGimnasio: 'Gimnasio Demo',
-        colorPrimario: '#2563eb',
-        colorSecundario: '#1e40af',
-      },
-    });
-
-    return NextResponse.json({ message: 'Seed ejecutado correctamente' });
+    return NextResponse.json({ message: results.join(', ') });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   } finally {
