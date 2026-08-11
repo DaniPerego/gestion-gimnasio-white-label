@@ -134,9 +134,7 @@ export async function cancelSuscripcion(id: string) {
     revalidatePath('/admin/suscripciones');
   } catch (error) {
     console.error('Database Error:', error);
-    return {
-      message: 'Error de base de datos: No se pudo cancelar la suscripción.',
-    };
+    throw new Error('Error de base de datos: No se pudo cancelar la suscripción.');
   }
 }
 

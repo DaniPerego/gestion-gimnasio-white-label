@@ -9,9 +9,9 @@ export async function fetchAsistencias(query: string, currentPage: number, disci
 
   const whereClause: any = {
     OR: [
-      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
-      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
-      { socio: { dni: { contains: query, mode: 'insensitive' } } },
+      { socio: { nombre: { contains: query } } },
+      { socio: { apellido: { contains: query } } },
+      { socio: { dni: { contains: query } } },
     ],
   };
 
@@ -73,9 +73,9 @@ export async function fetchAsistenciasPages(query: string, discipline?: string, 
   
   const whereClause: any = {
     OR: [
-      { socio: { nombre: { contains: query, mode: 'insensitive' } } },
-      { socio: { apellido: { contains: query, mode: 'insensitive' } } },
-      { socio: { dni: { contains: query, mode: 'insensitive' } } },
+      { socio: { nombre: { contains: query } } },
+      { socio: { apellido: { contains: query } } },
+      { socio: { dni: { contains: query } } },
     ],
   };
 

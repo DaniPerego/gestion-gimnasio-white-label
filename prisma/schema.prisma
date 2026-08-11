@@ -1,12 +1,10 @@
-// Cambio insignificativo para forzar despliegue en Vercel
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("PRISMA_DATABASE_URL")
-  directUrl = env("POSTGRES_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model Usuario {
@@ -115,8 +113,8 @@ model CuentaCorriente {
   id           String                      @id @default(cuid())
   socioId      String                      @unique
   socio        Socio                       @relation(fields: [socioId], references: [id], onDelete: Cascade)
-  saldoDeuda   Decimal                     @default(0) @db.Decimal(10, 2)
-  saldoCredito Decimal                     @default(0) @db.Decimal(10, 2)
+  saldoDeuda   Decimal                     @default(0)
+  saldoCredito Decimal                     @default(0)
   descripcion  String?
   estado       String                      @default("ACTIVO")
   movimientos  MovimientoCuentaCorriente[]
@@ -129,7 +127,7 @@ model MovimientoCuentaCorriente {
   cuentaCorrienteId String
   cuentaCorriente   CuentaCorriente @relation(fields: [cuentaCorrienteId], references: [id], onDelete: Cascade)
   tipo              String
-  monto             Decimal         @db.Decimal(10, 2)
+  monto             Decimal
   descripcion       String
   transaccionId     String?
   transaccion       Transaccion?    @relation(fields: [transaccionId], references: [id])
